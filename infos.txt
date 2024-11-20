@@ -1,1 +1,17 @@
 Set-ExecutionPolicy Unrestricted -Scope CurrentUser -Force
+
+// essayer de supprimer a partir d un autre branch
+git branch --merged  // check if branch wqs ,erged before deletion
+git branch --merged
+git push origin --delete develop
+git fetch --all --prune
+
+
+pour installer l envirnonement virtuel
+installez python
+python -m venv venv
+source venv/bin/activate  # macOS/Linux
+venv\Scripts\activate     # Windows
+
+pip list
+python run.py
