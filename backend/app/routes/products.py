@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from ..models import Product
-from .. import db
+
 
 product_bp = Blueprint('products', __name__)
 
@@ -15,6 +15,7 @@ def get_products():
 def add_product():
     data = request.json
     new_product = Product(name=data['name'], price=data['price'], stock=data['stock'])
+    from app import db  # Import local pour éviter les boucles
     db.session.add(new_product)
     db.session.commit()
     return jsonify({"message": "Produit ajouté avec succès!"}), 201

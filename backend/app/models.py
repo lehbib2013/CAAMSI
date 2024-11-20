@@ -1,4 +1,5 @@
-from . import db
+from sqlalchemy import Column, Integer, String, Float
+from . import db  # Import de l'instance 'db' depuis app/__init__.py
 
 class Product(db.Model):
     __tablename__ = 'products'
