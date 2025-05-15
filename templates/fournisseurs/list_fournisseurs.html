@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}List of Fournisseurs{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <h6 class="mb-0">Fournisseurs</h6>
+    <span class="text-muted">Catalog des fournisseurs <code>CAAM</code> </span>
+</div>
+
+<!-- Search and Filter -->
+<div class="mb-4">
+    <form id="searchForm" method="GET" action="{{ url_for('fournisseurs.list_fournisseurs') }}">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <input type="text" id="searchInput" name="search" class="form-control" placeholder="Rechercher par nom..." autocomplete="off" value="{{ request.args.get('search', '') }}">
+            </div>
+            <div class="col-md-6 d-flex align-items-center">
+                <!-- Trader Checkbox -->
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="checkbox" name="filter_trader" id="filterTrader" value="on" {% if request.args.get('filter_trader') == 'on' %}checked{% endif %}>
+                    <label class="form-check-label" for="filterTrader">Trader</label>
+                </div>
+                <!-- Liste Noire Checkbox -->
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="filter_list_noire" id="filterListNoire" value="on" {% if request.args.get('filter_list_noire') == 'on' %}checked{% endif %}>
+                    <label class="form-check-label" for="filterListNoire">Liste Noire</label>
+                </div>
+                <button type="submit" class="btn btn-primary ms-3">Filtrer</button>
+                 <!-- Export Buttons -->
+                 <div class="dropdown ms-3">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Exporter
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('fournisseurs.export_pdf', search=request.args.get('search', ''), filter_trader=request.args.get('filter_trader', ''), filter_list_noire=request.args.get('filter_list_noire', '')) }}">
+                                Export PDF
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('fournisseurs.export_excel', search=request.args.get('search', ''), filter_trader=request.args.get('filter_trader', ''), filter_list_noire=request.args.get('filter_list_noire', '')) }}">
+                                Export Excel
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('fournisseurs.export_word', search=request.args.get('search', ''), filter_trader=request.args.get('filter_trader', ''), filter_list_noire=request.args.get('filter_list_noire', '')) }}">
+                                Export Word
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="content">
+    <div class="row">
+        {% for fournisseur in fournisseurs %}
+        <div class="col-xl-2 col-sm-6">
+            <div class="card" style="width: 200px; height:250px; object-fit: cover;">
+                <div class="card-img-actions">
+                    <img class="card-img-top img-fluid" 
+                        src="{{ url_for('static', filename=fournisseur.sigle_image if fournisseur.sigle_image else 'uploads/default.jpg') }}" 
+                        alt="Fournisseur Image" style="width: 100%; height:150px; object-fit: cover;">
+                    <div class="card-img-actions-overlay card-img-top">
+                        <a href="{{ url_for('fournisseurs.edit_fournisseur', id=fournisseur.id) }}" class="btn btn-outline-white btn-icon rounded-pill">
+                            <i class="ph-pencil"></i>
+                        </a>
+                        <button type="button" class="btn btn-outline-white btn-icon rounded-pill ms-2" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ fournisseur.id }}">
+                            <i class="ph-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body text-center">
+                    <!-- Check icon if the fournisseur is a trader -->
+                    {% if fournisseur.trader %}
+                    <div>
+                        <i class="ph-check-circle text-success" style="font-size: 1.5rem;"></i>
+                    </div>
+                    {% endif %}
+                    <h6 class="mb-0">{{ fournisseur.nom }}</h6>
+                    <span class="text-muted">{{ fournisseur.contact }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmation de suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir supprimer ce fournisseur ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="POST" action="">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #autocompleteList .list-group-item {
+        cursor: default; /* Ensures the cursor remains an arrow */
+    }
+</style>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const autocompleteList = document.getElementById('autocompleteList');
+
+    searchInput.addEventListener('input', function () {
+        const query = this.value;
+        if (query.length > 1) {
+            fetch(`/fournisseurs/autocomplete?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    autocompleteList.innerHTML = '';
+                    if (data.length > 0) {
+                        autocompleteList.style.display = 'block';
+                        data.forEach(item => {
+                            const listItem = document.createElement('div');
+                            listItem.className = 'list-group-item list-group-item-action';
+                            listItem.textContent = item.nom;
+                            listItem.addEventListener('click', function () {
+                                searchInput.value = item.nom; // Set the selected text in the input
+                                autocompleteList.style.display = 'none'; // Hide the autocomplete list
+                            });
+                            autocompleteList.appendChild(listItem);
+                        });
+                    } else {
+                        autocompleteList.style.display = 'none';
+                    }
+                });
+        } else {
+            autocompleteList.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('click', function (event) {
+        if (!autocompleteList.contains(event.target) && event.target !== searchInput) {
+            autocompleteList.style.display = 'none';
+        }
+    });
+
+    const deleteModal = document.getElementById('deleteModal');
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const fournisseurId = button.getAttribute('data-id');
+        const deleteForm = document.getElementById('deleteForm');
+        deleteForm.action = `/fournisseurs/${fournisseurId}/delete`;
+    });
+</script>
+{% endblock %}

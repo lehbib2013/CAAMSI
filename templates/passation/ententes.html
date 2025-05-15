@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Ententes Directes{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Liste des Ententes Directes</h2>
+    <a href="{{ url_for('ententes.add_entente') }}" class="btn btn-primary mb-3">Ajouter une Entente Directe</a>
+    <div class="row">
+
+
+        
+
+        {% for entente in ententes %}
+
+        <div class="col-lg-6">
+            <div class="card custom-card">
+                <div class="card-body">
+                    <div class="d-sm-flex align-item-sm-center flex-sm-nowrap">
+                        <div>
+                            <h6>Objet d entente </h6>
+                            <ul class="list list-unstyled mb-0">
+                                <li>RFQ n : <span class="fw-semibold">003/..../...../..../2025</span></li>
+                                <li>Criteres de classification:<span class="fw-semibold">{{ entente.criteres_qualification.value }}</span></li>
+                                <li>PV de négociation: {{ entente.pv_negociation_filename or 'Non disponible' }}</li>
+                                                        <li>Justificatif de recours: {{ entente.justificatif_recours_filename or 'Non disponible' }}</li>
+                            
+                            </ul>
+                        </div>
+        
+                        <div class="text-sm-end mb-0 mt-3 mt-sm-0 ms-auto">
+                            <h6>{{ entente.designation }}</h6>
+                            <ul class="list list-unstyled mb-0">
+                                <li>Offre technique: {{ entente.offre_technique_filename or 'Non disponible' }}</li>
+                                <li>Offre financière: {{ entente.offre_financiere_filename or 'Non disponible' }}</li>
+        
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span>
+                        <i class="ph-bell-ringing me-1"></i>
+                        Limite depot:
+                        <span class="fw-semibold">2022/02/25</span>
+                    </span>
+        
+                    <div class="d-inline-flex">
+                        <a href="#" class="text-body" data-bs-toggle="modal" data-bs-target="#invoice">
+                            <i class="ph-arrow-square-out"></i>
+                        </a>
+                        <div class="d-inline-flex dropdown ms-3">
+                            <a href="#" class="d-inline-flex align-items-center text-body dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="ph-list"></i>
+                            </a>
+        
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a href="#" class="dropdown-item">
+                                    <i class="ph-printer me-2"></i>
+                                    Telecharger note de service commission Ad Hoc
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <i class="ph-printer me-2"></i>
+                                    Telecharger le justificatif d achat
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <i class="ph-printer me-2"></i>
+                                    Telecharger le rapport d evaluation
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <i class="ph-printer me-2"></i>
+                                    Telecharger la demande de cotation
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <i class="ph-file-arrow-down me-2"></i>
+                                    Telecharger la liste des fournisseurs
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                
+                                <a href="{{ url_for('ententes.edit_entente', id=entente.id) }}" class="btn btn-primary">
+                                    <i class="ph-file-plus me-2"></i>
+                                    Modifier
+                                </a>
+                                <form action="{{ url_for('ententes.delete_entente', id=entente.id) }}" method="POST" style="display:inline;">
+                                    <i class="ph-x me-2"></i>  <button type="submit" class="dropdown-item" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette entente ?');">Supprimer</button>
+                                </form>
+                              
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+

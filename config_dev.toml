@@ -1,0 +1,4 @@
+DATABASE_URI = "mysql+mysqlconnector://root:google@localhost/caamsi"
+SECRET_KEY = "SpOn1ZyV4KE2FTlAUrWRZ_h7o5s"
+FLASK_DEBUG = true
+TESTING = true

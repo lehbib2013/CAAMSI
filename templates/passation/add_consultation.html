@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %} Nouvelle Consultation {% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Une nouvelle consultation des fournisseurs</h5>
+            </div>
+
+            <div class="card-body">
+                Liste des consultations des fournisseurs passées par la CSPMP de la CAAM.
+            </div>
+
+            <div class="card-body border-top">
+                <form action="{{ url_for('consultations.add_consultation') }}" method="POST" enctype="multipart/form-data">
+                    <!-- Objet du marché -->
+                   
+                    <div class="row mb-3">
+                        <label for="designation" class="col-lg-4 col-form-label">Objet du marché:</label>
+                        <div class="col-lg-8">
+                            <input type="text" id="designation" name="designation" class="form-control" placeholder="Objet du marché" required>
+                        </div>
+                    </div>
+                   
+                    <div class="row mb-3">
+                        <label for="criteres_qualification" class="col-lg-4 col-form-label">Critere de classiffication des offres:</label>
+                        <div class="col-lg-8">
+                            <select id="criteres_qualification" name="criteres_qualification" class="form-control">
+                                <option value="PAR_PRODUIT">Par Produit</option>
+                                <option value="PAR_OFFRE">Par Offre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Numéro RFQ -->
+                    <div class="row mb-3">
+                        <label for="numero_rfq" class="col-lg-4 col-form-label">Numéro RFQ:</label>
+                        <div class="col-lg-8">
+                            <input type="text" id="numero_rfq" name="numero_rfq" class="form-control" placeholder="Numéro RFQ" required>
+                        </div>
+                    </div>
+
+                    <!-- Voie de la soumission -->
+                    <div class="row mb-3">
+                        <label for="voie_soumission" class="col-lg-4 col-form-label">Voie de la soumission:</label>
+                        <div class="col-lg-8">
+                            <input type="text" id="voie_soumission" name="voie_soumission" class="form-control" placeholder="Voie de la soumission" required>
+                        </div>
+                    </div>
+
+                    <!-- Date de lancement -->
+                    <div class="row mb-3">
+                        <label for="date_lancement" class="col-lg-4 col-form-label">Date de lancement:</label>
+                        <div class="col-lg-8">
+                            <input type="datetime-local" id="date_lancement" name="date_lancement" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <!-- Liste des fournisseurs à consulter -->
+                    <div class="row mb-3">
+                        <label for="liste_fournisseurs" class="col-lg-4 col-form-label">Liste des fournisseurs à consulter:</label>
+                        <div class="col-lg-8">
+                            <input type="file" id="liste_fournisseurs" name="liste_fournisseurs" class="form-control">
+                        </div>
+                    </div>
+
+                    <!-- Étape de passation actuelle -->
+                    <div class="row mb-3">
+                        <label for="statut" class="col-lg-4 col-form-label">Étape de passation actuelle:</label>
+                        <div class="col-lg-8">
+                            <select id="statut" name="statut_display" class="form-control" disabled>
+                                    <option value="PREPARATION" selected>En cours de preparation</option>
+                                    <option value="LANCE">Lancement</option>
+                                    <option value="OUVERT">Ouverture</option>
+                                    <option value="EVALUE">Evaluation</option>
+                                    <option value="INFRUCTUEUSE">Infructure</option>
+                                    <option value="ATTRIBUE_PROVIS">Approbation provisoire</option>
+                                    <option value="ATTRIBUE_DEFINITIVE">Approbation definitive</option>
+                                    <option value="NUMEROTATION">Numerotation</option>
+                                    <option value="CONTRAT">Contrat</option>
+                                    <option value="RESILIE">Resiliation</option>
+                            </select>
+                            <!-- Hidden input to submit the value -->
+                            <input type="hidden" id="statut" name="statut" value="PREPARATION">
+                        </div>
+                    </div>
+
+                    <!-- Demande de cotation -->
+                    <div class="row mb-3">
+                        <label for="demande_cotation" class="col-lg-4 col-form-label">Demande de cotation:</label>
+                        <div class="col-lg-8">
+                            <input type="file" id="demande_cotation" name="demande_cotation" class="form-control">
+                        </div>
+                    </div>
+
+                    <!-- Justificatif d'achat (PPM) -->
+                    <div class="row mb-3">
+                        <label for="ppm_justificatif" class="col-lg-4 col-form-label">Justificatif d'achat (PPM):</label>
+                        <div class="col-lg-8">
+                            <input type="file" id="ppm_justificatif" name="ppm_justificatif" class="form-control">
+                        </div>
+                    </div>
+
+                    <!-- NS commission Ad Hoc -->
+                    <div class="row mb-3">
+                        <label for="commission_ad_hoc" class="col-lg-4 col-form-label">NS commission Ad Hoc:</label>
+                        <div class="col-lg-8">
+                            <input type="file" id="commission_ad_hoc" name="commission_ad_hoc" class="form-control">
+                        </div>
+                    </div>
+
+                   
+
+                    <!-- Note -->
+                    <div class="row mb-3">
+                        <label for="note" class="col-lg-4 col-form-label">Note:</label>
+                        <div class="col-lg-8">
+                            <textarea id="note" name="note" rows="3" class="form-control" placeholder="Informations ou notes sur le marché"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Ajouter la consultation <i class="ph-paper-plane-tilt ms-2"></i></button>
+                        
+                    </div>
+                </form>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

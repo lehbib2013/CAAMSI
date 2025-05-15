@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Produits{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2>Liste des Produits</h2>
+    <div class="row">
+        {% for produit in produits %}
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">{{ produit.nom }}</h5>
+                    <p class="card-text">
+                        <strong>Description:</strong> {{ produit.description or 'N/A' }}<br>
+                        <strong>Prix d achat:</strong> {{ produit.prix_achat }} €<br>
+                        <strong>Quantité:</strong> {{ produit.stock }}<br>
+                        <strong>Catégorie:</strong> {{ produit.categorie or 'N/A' }}<br>
+                        <strong>peut etre vendu:</strong> {{ 'Oui' if produit.peut_etre_vendu else 'Non' }}
+                    </p>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('produits.edit_produit', id=produit.id) }}" class="btn btn-primary">Modifier</a>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ produit.id }}">
+                            Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmation de suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir supprimer ce produit ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="POST" action="">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Attach the product ID to the delete form when the modal is triggered
+    const deleteModal = document.getElementById('deleteModal');
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget; // Button that triggered the modal
+        const productId = button.getAttribute('data-id'); // Extract product ID from data-id attribute
+        const deleteForm = document.getElementById('deleteForm');
+        deleteForm.action = "{{ url_for('produits.delete_produit', id=0) }}".replace('0', productId); // Replace '0' with the actual product ID
+    });
+</script>
+{% endblock %}

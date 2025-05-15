@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+
+{% block title %}Consultation: {{ consultation.designation if consultation else 'Nouvelle Consultation' }}{% endblock %}
+
+{% block content %}
+<style>
+/* Change the active tab's background color to blue */
+.nav-tabs .nav-link.active {
+    background-color: #2196f3; /* Blue background */
+    color: white; /* White text */
+    border-color: #2196f3; /* Optional: Match the border color */
+}
+
+/* Optional: Change the hover effect for active tabs */
+.nav-tabs .nav-link.active:hover {
+    background-color: #1976d2; /* Darker blue on hover */
+    color: white;
+}
+
+ .progress-tracker {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+}
+
+.progress-tracker li {
+    position: relative;
+    flex: 1;
+    text-align: center;
+}
+
+.progress-tracker li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: calc(100% - 30px); /* Ajuste la largeur pour ne pas dépasser */
+    height: 4px;
+    background-color: #ddd;
+    z-index: -1;
+    transform: translateY(-50%);
+}
+
+.progress-tracker li:last-child::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: calc(100% - 30px); /* Ajuste la largeur pour ne pas dépasser */
+    height: 4px;
+    background-color: #ddd;
+    z-index: -1;
+    transform: translateY(-50%);
+}
+
+.progress-tracker li.done::after {
+    background-color: #4caf50;
+}
+.progress-tracker li:last-child.done .circle {
+    font-weight: normal; /* Assurez-vous que le texte n'est pas en gras */
+}
+.progress-tracker li .circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #ddd;
+    line-height: 30px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-tracker li.done .circle {
+    background-color: #4caf50;
+    color: white;
+}
+
+.progress-tracker li.active .circle {
+    background-color: #2196f3;
+    color: white;
+}
+
+.progress-tracker li.waiting .circle {
+    background-color: #ddd;
+    color: #aaa;
+}
+
+.progress-tracker li span {
+    display: block;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #555;
+}
+
+.progress-tracker li.blocked .circle {
+    background-color: #ccc;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.progress-tracker li.blocked span {
+    color: #999;
+}
+
+</style>
+
+<div class="row">
+    <ul class="progress-tracker">
+        {% for step in steps %}
+        <li class="
+            {% if step.done %}
+                done
+            {% elif step.blocked %}
+                blocked
+            {% else %}
+                active
+            {% endif %}
+        ">
+            <div class="circle">{{ loop.index }}</div>
+            <span>{{ step.name }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% set active_tab = request.args.get('tab', 'details') %}
+
+<div class="container mt-1">
+   
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs" id="consultationTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'details' %}active{% endif %}" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab" aria-controls="details" aria-selected="{{ 'true' if active_tab == 'details' else 'false' }}" {% if steps[0].blocked %}disabled{% endif %}>
+                Détails de la Consultation
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'products' %}active{% endif %}" id="products-tab" data-bs-toggle="tab" data-bs-target="#products" type="button" role="tab" aria-controls="products" aria-selected="{{ 'true' if active_tab == 'products' else 'false' }}" {% if not consultation or steps[0].blocked %}disabled{% endif %}>
+                Produits Associés
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'ouverture' %}active{% endif %}" " id="ouverture-tab" data-bs-toggle="tab" id="ouverture-tab" data-bs-target="#ouverture" type="button" role="tab" aria-controls="#ouverture" aria-selected="{{ 'true' if active_tab == 'ouverture' else 'false' }}" {% if steps[1].blocked %}disabled{% endif %}>
+                Ouverture
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'evaluation' %}active{% endif %}" " id="evaluation-tab" data-bs-toggle="tab" data-bs-target="#evaluation" type="button" role="tab" aria-controls="#evaluation" aria-selected="{{ 'true' if active_tab == 'evaluation' else 'false' }}" {% if steps[2].blocked %}disabled{% endif %}>
+                Évaluation
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'attribution' %}active{% endif %}" " id="attribution-tab" data-bs-toggle="tab" data-bs-target="#attribution" type="button" role="tab" aria-controls="#attribution" aria-selected="{{ 'true' if active_tab == 'attribution' else 'false' }}" {% if steps[3].blocked   %}disabled{% endif %}>
+                Attribution
+            </button>
+        </li>
+       
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'contrat' %}active{% endif %}" " id="contrat-tab" data-bs-toggle="tab" data-bs-target="#contrat" type="button" role="tab" aria-controls="#contrat" aria-selected="{{ 'true' if active_tab == 'contrat' else 'false' }}" {% if steps[4].blocked  %}disabled{% endif %}>
+                Contrat
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'numerotation' %}active{% endif %}" " id="numerotation-tab" data-bs-toggle="tab" data-bs-target="#numerotation" type="button" role="tab" aria-controls="#numerotation" aria-selected="{{ 'true' if active_tab == 'numerotation' else 'false' }}" {% if not consultation.contrat %}disabled{% endif %}>
+                Numerotation
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content mt-3" id="consultationTabsContent">
+        <!-- Consultation Details Tab -->
+        <div class="tab-pane fade {% if active_tab == 'details' %}show active{% endif %}" id="details" role="tabpanel" aria-labelledby="details-tab">
+          
+                {% include 'passation/edit_consultation.html' %}
+          
+        </div>
+
+        <!-- Products Tab -->
+        <div class="tab-pane fade {% if active_tab == 'products' %}show active{% endif %}" id="products" role="tabpanel" aria-labelledby="products-tab">
+            {% include 'passation/add_products.html' %}
+        </div>
+
+         <!-- Ouverture Tab -->
+          
+         <div class="tab-pane fade {% if active_tab == 'ouverture' %}show active{% endif %}" id="ouverture" role="tabpanel" aria-labelledby="ouverture-tab">
+            <div class="container mt-4  custom-table-container">
+            <h5>Informations sur l'ouverture</h5>
+            <p>Ajoutez ici les informations spécifiques à l'ouverture.</p>
+            <form action="{{ url_for('consultations.update_ouverture', id=consultation.id) }}" method="POST" enctype="multipart/form-data">
+                <div class="row mb-3">
+                    <label for="date_ouverture" class="col-lg-4 col-form-label">Date d'ouverture:</label>
+                    <div class="col-lg-8">
+                        <input type="datetime-local" id="date_ouverture" name="date_ouverture" class="form-control" value="{{ consultation.date_ouverture|datetimeformat }}">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="pv_ouverture" class="col-lg-4 col-form-label">Procès-verbal d'ouverture:</label>
+                    <div class="col-lg-8">
+                        <input type="file" id="pv_ouverture" name="pv_ouverture" class="form-control">
+                        <div class="form-text">Fichier actuel: {{ consultation.pv_ouverture_filename }}</div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="pv_ouverture" class="col-lg-4 col-form-label">Procès-verbal d'ouverture:</label>
+                    <div class="col-lg-8">
+                        {% if consultation.pv_ouverture_filename %}
+                            <p>Fichier actuel : <strong>{{ consultation.pv_ouverture_filename }}</strong></p>
+                            <a href="{{ url_for('consultations.download_pv_ouverture', id=consultation.id) }}" class="btn btn-sm btn-primary">
+                                Télécharger le fichier
+                            </a>
+                        {% else %}
+                            <p>Aucun fichier disponible.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary" {% if steps[1].archived%}disabled{% endif %}>Enregistrer les informations d'ouverture</button>
+                </div>
+            </form>
+
+               <!--  debut Gestion des soumission -->
+         
+                 {% include 'passation/soumissions/soumission_table.html' %}
+
+              <!-- Fin Gestion des soumission -->
+        </div>
+        </div>
+
+         <!-- Évaluation Tab -->
+         <div class="tab-pane fade {% if active_tab == 'evaluation' %}show active{% endif %}" id="evaluation" role="tabpanel" aria-labelledby="evaluation-tab">
+            <h5>Évaluation</h5>
+            <form action="{{ url_for('consultations.update_evaluation', id=consultation.id) }}" method="POST" enctype="multipart/form-data">
+                <div class="row mb-3">
+                    <label for="date_evaluation" class="col-lg-4 col-form-label">Date d'évaluation:</label>
+                    <div class="col-lg-8">
+                        <input type="datetime-local" id="date_evaluation" name="date_evaluation" class="form-control" value="{{ consultation.date_evaluation|datetimeformat }}">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="pv_evaluation" class="col-lg-4 col-form-label">Procès-verbal d'évaluation:</label>
+                    <div class="col-lg-8">
+                        <input type="file" id="pv_evaluation" name="pv_evaluation" class="form-control">
+                        <div class="form-text">Fichier actuel: {{ consultation.pv_evaluation_filename }}</div>
+                    </div>
+
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="infructure" name="infructure" {% if consultation.infructure %}checked{% endif %}>
+                        <label class="form-check-label" for="infructure">Déclarer comme infructueuse</label>
+                    </div>
+                </div>
+
+                
+                <button type="submit" class="btn btn-primary" {% if steps[2].archived%}disabled{% endif %}>Enregistrer</button>
+            </form>
+        </div>
+
+        <!-- Attribution Tab -->
+        <div class="tab-pane fade {% if active_tab == 'attribution' %}show active{% endif %}" id="attribution" role="tabpanel" aria-labelledby="attribution-tab">
+            <h5>Attribution</h5>
+            <form action="{{ url_for('consultations.update_attribution_provisoire', id=consultation.id) }}" method="POST" enctype="multipart/form-data">
+                <div class="row mb-3">
+                    <label for="pv_attribution" class="col-lg-4 col-form-label">Procès-verbal d'attribution provisoire:</label>
+                    <div class="col-lg-8">
+                        <input type="file" id="pv_attribution" name="pv_attribution" class="form-control">
+                        <div class="form-text">Fichier actuel : {{ consultation.pv_attribution_filename }}</div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" {% if steps[3].archived or steps[4].archived %}disabled{% endif %}>Mettre à jour</button>
+            </form>
+        </div>
+
+        <!-- Annulation Tab -->
+        <div class="tab-pane fade" id="annulationn" role="tabpanel" aria-labelledby="annulationn-tab">
+            <h5>Annulation</h5>
+            <form action="{{ url_for('consultations.update_annulation', id=consultation.id) }}" method="POST">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="annulation" name="annulation" {% if consultation.annulation %}checked{% endif %}>
+                    <label class="form-check-label" for="annulation">Annuler la consultation</label>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2"  >Mettre à jour</button>
+            </form>
+        </div>
+
+        <!-- Contrat Tab -->
+        <div class="tab-pane fade {% if active_tab == 'contrat' %}show active{% endif %}" id="contrat" role="tabpanel" aria-labelledby="contrat-tab">
+            <h5>Contrat</h5>
+            <form action="{{ url_for('consultations.update_contrat', id=consultation.id) }}" method="POST">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="contrat" name="contrat" {% if consultation.contrat %}checked{% endif %}>
+                    <label class="form-check-label" for="contrat">Contrat signé</label>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2"  {% if steps[5].archived %}disabled{% endif %}>Mettre à jour</button>
+            </form>
+        </div>
+
+        <!-- Résiliation Tab -->
+        <div class="tab-pane fade {% if active_tab == 'numerotation' %}show active{% endif %}" id="numerotation" role="tabpanel" aria-labelledby="numerotation-tab">
+            <h5>Numerotation</h5>
+            <form action="{{ url_for('consultations.update_numerotation', id=consultation.id) }}" method="POST">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="numerotation" name="numerotation" {% if consultation.numerotation %}checked{% endif %}>
+                    <label class="form-check-label" for="numerotation">Numérotation effectuée</label>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2" >Mettre à jour</button>
+            </form>
+        </div>
+    </div>
+
+
+
+    </div>
+</div>
+</div>
+{% endblock %}

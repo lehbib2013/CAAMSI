@@ -1,0 +1,155 @@
+
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Modifier la consultation des fournisseurs</h5>
+            </div>
+
+            <div class="card-body border-top">
+                <form action="{{ url_for('consultations.edit_consultation', id=consultation.id) }}" method="POST" enctype="multipart/form-data">
+                    <!-- Objet du marché -->
+                    <div class="row mb-3">
+                        <label for="designation" class="col-lg-4 col-form-label">Objet du marché:</label>
+                        <div class="col-lg-8">
+                            <input type="text" id="designation" name="designation" class="form-control" placeholder="Objet du marché" value="{{ consultation.designation }}" required>
+                        </div>
+                    </div>
+                   
+                    <!-- Critère de classification des offres -->
+                    <div class="row mb-3">
+                        <label for="criteres_qualification" class="col-lg-4 col-form-label">Critère de classification des offres:</label>
+                        <div class="col-lg-8">
+                            <select id="criteres_qualification" name="criteres_qualification" class="form-control">
+                                <option value="PAR_PRODUIT" {% if consultation.criteres_qualification == 'PAR_PRODUIT' %}selected{% endif %}>Par Produit</option>
+                                <option value="PAR_OFFRE" {% if consultation.criteres_qualification == 'PAR_OFFRE' %}selected{% endif %}>Par Offre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Numéro RFQ -->
+                    <div class="row mb-3">
+                        <label for="numero_rfq" class="col-lg-4 col-form-label">Numéro RFQ:</label>
+                        <div class="col-lg-8">
+                            <input type="text" id="numero_rfq" name="numero_rfq" class="form-control" placeholder="Numéro RFQ" value="{{ consultation.numero_rfq }}" required>
+                        </div>
+                    </div>
+
+                    <!-- Voie de la soumission -->
+                    <div class="row mb-3">
+                        <label for="voie_soumission" class="col-lg-4 col-form-label">Voie de la soumission:</label>
+                        <div class="col-lg-8">
+                            <input type="text" id="voie_soumission" name="voie_soumission" class="form-control" placeholder="Voie de la soumission" value="{{ consultation.voie_soumission }}" required>
+                        </div>
+                    </div>
+
+                    <!-- Date de lancement -->
+                    <div class="row mb-3">
+                        <label for="date_lancement" class="col-lg-4 col-form-label">Date de lancement:</label>
+                        <div class="col-lg-8">
+                            <input type="datetime-local" id="date_lancement" name="date_lancement" class="form-control" value="{{ consultation.date_lancement| datetimeformat }}" required>
+                        </div>
+                    </div>
+
+                    <!-- Liste des fournisseurs à consulter -->
+                    <div class="row mb-3">
+                        <label for="liste_fournisseurs" class="col-lg-4 col-form-label">Liste des fournisseurs à consulter:</label>
+                        <div class="col-lg-8">
+                            <input type="file" id="liste_fournisseurs" name="liste_fournisseurs" class="form-control">
+                            <div class="form-text">Fichier actuel: {{ consultation.liste_fournisseurs_filename }}</div>
+                        </div>
+                    </div>
+                 
+                    <!-- Étape de passation actuelle -->
+                    <div class="row mb-3">
+                        <label for="statut" class="col-lg-4 col-form-label">Étape de passation actuelle:</label>
+                        <div class="col-lg-8">
+                            <select id="statut" name="statut" class="form-control">
+                                <option value="PREPARATION" {% if consultation.statut == 'PREPARATION' %}selected{% endif %}>En cours de preparation</option>
+                                <option value="LANCE" {% if consultation.statut == 'LANCE' %}selected{% endif %}>Lancement</option>
+                                <option value="OUVERT" {% if consultation.statut == 'OUVERT' %}selected{% endif %}>Ouverture</option>
+                                <option value="EVALUE" {% if consultation.statut == 'EVALUE' %}selected{% endif %}>Evaluation</option>
+                                <option value="INFRUCTUEUSE" {% if consultation.statut == 'INFRUCTUEUSE' %}selected{% endif %}>Infructure</option>
+                                <option value="ATTRIBUE_PROVIS" {% if consultation.statut == 'ATTRIBUE_PROVIS' %}selected{% endif %}>Approbation provisoire</option>
+                                <option value="ATTRIBUE_DEFINITIVE" {% if consultation.statut == 'ATTRIBUE_DEFINITIVE' %}selected{% endif %}>Approbation definitive</option>
+                                <option value="NUMEROTATION" {% if consultation.statut == 'NUMEROTATION' %}selected{% endif %}>Numerotation</option>
+                                <option value="CONTRAT" {% if consultation.statut == 'CONTRAT' %}selected{% endif %}>Contrat</option>
+                                <option value="RESILIE" {% if consultation.statut == 'RESILIE' %}selected{% endif %}>Resiliation</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Demande de cotation -->
+                    <div class="row mb-3">
+                        <label for="demande_cotation" class="col-lg-4 col-form-label">Demande de cotation:</label>
+                        <div class="col-lg-8">
+                            <input type="file" id="demande_cotation" name="demande_cotation" class="form-control">
+                            <div class="form-text">Fichier actuel: {{ consultation.demande_cotation_filename }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Justificatif d'achat (PPM) -->
+                    <div class="row mb-3">
+                        <label for="ppm_justificatif" class="col-lg-4 col-form-label">Justificatif d'achat (PPM):</label>
+                        <div class="col-lg-8">
+                            <input type="file" id="ppm_justificatif" name="ppm_justificatif" class="form-control">
+                            <div class="form-text">Fichier actuel: {{ consultation.ppm_justificatif_filename }}</div>
+                        </div>
+                    </div>
+
+                    <!-- NS commission Ad Hoc -->
+                    <div class="row mb-3">
+                        <label for="commission_ad_hoc" class="col-lg-4 col-form-label">NS commission Ad Hoc:</label>
+                        <div class="col-lg-8">
+                            <input type="file" id="commission_ad_hoc" name="commission_ad_hoc" class="form-control">
+                            <div class="form-text">Fichier actuel: {{ consultation.commission_ad_hoc_filename }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Rapport d'évaluation -->
+                    <div class="row mb-3">
+                        <label for="rapport_evaluation" class="col-lg-4 col-form-label">Rapport d'évaluation:</label>
+                        <div class="col-lg-8">
+                            <input type="file" id="rapport_evaluation" name="rapport_evaluation" class="form-control">
+                            <div class="form-text">Fichier actuel: {{ consultation.rapport_evaluation_filename }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Note -->
+                    <div class="row mb-3">
+                        <label for="note" class="col-lg-4 col-form-label">Note:</label>
+                        <div class="col-lg-8">
+                            <textarea id="note" name="note" rows="3" class="form-control" placeholder="Informations ou notes sur le marché">{{ consultation.note }}</textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="infructure" class="col-lg-4 col-form-label">Infructueuse:</label>
+                        <div class="col-lg-8">
+                            <input type="checkbox" id="infructure" name="infructure" class="form-check-input" {% if consultation.infructure %}checked{% endif %}>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="cautions_presentees" class="col-lg-4 col-form-label">Cautions présentées:</label>
+                        <div class="col-lg-8">
+                            <input type="checkbox" id="cautions_presentees" name="cautions_presentees" class="form-check-input" {% if consultation.cautions_presentees %}checked{% endif %}>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="annulation" class="col-lg-4 col-form-label">Annulation:</label>
+                        <div class="col-lg-8">
+                            <input type="checkbox" id="annulation" name="annulation" class="form-check-input" {% if consultation.annulation %}checked{% endif %}>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary" {% if steps and steps[0].archived%}disabled{% endif %}>Modifier la consultation <i class="ph-paper-plane-tilt ms-2"></i></button>
+                        
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

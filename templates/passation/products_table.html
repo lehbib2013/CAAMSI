@@ -1,0 +1,11 @@
+{% for produit in consultation.marche_produits %}
+<tr data-product-id="{{ produit.id }}">
+    <td>{{ produit.produit.nom }}</td>
+    <td>
+        <input type="number" class="form-control product-quantity" value="{{ produit.quantite }}" data-product-id="{{ produit.id }}">
+    </td>
+    <td>
+        <button class="btn btn-danger btn-sm delete-product" data-product-id="{{ produit.id }}">Supprimer</button>
+    </td>
+</tr>
+{% endfor %}

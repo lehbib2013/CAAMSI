@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>Limitless - Responsive Web Application Kit by Eugene Kopyov</title>
+
+<!-- Global stylesheets -->
+<link href="{{ url_for('static', filename='assets/fonts/inter/inter.css') }}" rel="stylesheet" type="text/css">
+<link href="{{ url_for('static', filename='assets/icons/phosphor/styles.min.css') }}" rel="stylesheet" type="text/css">
+<link href="{{ url_for('static', filename='assets/css/ltr/all.min.css') }}" id="stylesheet" rel="stylesheet" type="text/css">
+<!-- /global stylesheets -->
+
+<!-- Core JS files -->
+<script src="{{ url_for('static', filename='assets/demo/demo_configurator.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/bootstrap/bootstrap.bundle.min.js') }}"></script>
+<!-- /core JS files -->
+
+<!-- Theme JS files -->
+<script src="{{ url_for('static', filename='assets/js/app.js') }}"></script>
+<script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+	<!-- /theme JS files -->
+<script src="../../../assets/demo/pages/components_buttons.js"></script>
+</head>
+
+<body>
+
+	<!-- Main navbar -->
+	<div class="navbar navbar-dark navbar-expand-lg navbar-static border-bottom border-bottom-white border-opacity-10">
+		<div class="container-fluid">
+			<div class="d-flex d-lg-none me-2">
+				<button type="button" class="navbar-toggler sidebar-mobile-main-toggle rounded">
+					<i class="ph-list"></i>
+				</button>
+			</div>
+
+			<div class="navbar-brand">
+				<a href="index.html" class="d-inline-flex align-items-center">
+					<img src="../../../assets/images/logo_icon.svg" alt="">
+					<img src="../../../assets/images/logo_text_light.svg" class="d-none d-sm-inline-block h-16px ms-3" alt="">
+				</a>
+			</div>
+
+			<div class="d-lg-none ms-2">
+				<button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-mobile" aria-expanded="false">
+					<i class="ph-squares-four"></i>
+				</button>
+			</div>
+
+			<div class="navbar-collapse order-2 order-lg-1 collapse" id="navbar-mobile" style="">
+				<ul class="navbar-nav mt-2 mt-lg-0">
+					<li class="nav-item">
+						<a href="#" class="navbar-nav-link rounded">Link</a>
+					</li>
+					<li class="nav-item dropdown">
+						<a href="#" class="navbar-nav-link rounded dropdown-toggle" data-bs-toggle="dropdown">Dropdown</a>
+						<div class="dropdown-menu">
+							<a href="#" class="dropdown-item">Action</a>
+							<a href="#" class="dropdown-item">Another action</a>
+							<a href="#" class="dropdown-item">Something else here</a>
+							<a href="#" class="dropdown-item">One more line</a>
+						</div>
+					</li>
+				</ul>
+			</div>
+
+			<ul class="nav gap-sm-2 order-1 order-lg-2 ms-auto">
+				<li class="nav-item">
+					<a href="#" class="navbar-nav-link navbar-nav-link-icon rounded">
+						<i class="ph-bell"></i>
+						<span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">2</span>
+					</a>
+				</li>
+				<li class="nav-item">
+					<a href="#" class="navbar-nav-link navbar-nav-link-icon rounded">
+						<i class="ph-chats"></i>
+					</a>
+				</li>
+				<li class="nav-item nav-item-dropdown-lg dropdown">
+					<a href="#" class="navbar-nav-link align-items-center rounded p-1" data-bs-toggle="dropdown" aria-expanded="false">
+						<div class="status-indicator-container">
+							<img src="../../../assets/images/demo/users/face11.jpg" class="w-32px h-32px rounded" alt="">
+							<span class="status-indicator bg-success"></span>
+						</div>
+						<span class="d-none d-lg-inline-block mx-lg-2">Victoria</span>
+					</a>
+
+					<div class="dropdown-menu dropdown-menu-end">
+						<a href="#" class="dropdown-item">Action</a>
+						<a href="#" class="dropdown-item">Another action</a>
+						<a href="#" class="dropdown-item">Something else here</a>
+						<a href="#" class="dropdown-item">One more line</a>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<!-- /main navbar -->
+
+
+	<!-- Page content -->
+	<div class="page-content">
+
+		<!-- Main sidebar -->
+		<div class="sidebar sidebar-dark sidebar-main sidebar-expand-lg">
+
+			<!-- Sidebar content -->
+			<div class="sidebar-content">
+
+				<!-- Sidebar header -->
+				<div class="sidebar-section">
+					<div class="sidebar-section-body d-flex justify-content-center">
+						<h5 class="sidebar-resize-hide flex-grow-1 my-auto">Navigation</h5>
+
+						<div>
+							<button type="button" class="btn btn-flat-white btn-icon btn-sm rounded-pill border-transparent sidebar-control sidebar-main-resize d-none d-lg-inline-flex">
+								<i class="ph-arrows-left-right"></i>
+							</button>
+
+							<button type="button" class="btn btn-flat-white btn-icon btn-sm rounded-pill border-transparent sidebar-mobile-main-toggle d-lg-none">
+								<i class="ph-x"></i>
+							</button>
+						</div>
+					</div>
+				</div>
+				<!-- /sidebar header -->
+
+
+				<!-- Main navigation -->
+				<div class="sidebar-section">
+					<ul class="nav nav-sidebar" data-nav-type="accordion">
+
+						<!-- Main -->
+						<li class="nav-item-header pt-0">
+							<div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">Main</div>
+							<i class="ph-dots-three sidebar-resize-show"></i>
+						</li>
+						<li class="nav-item">
+							<a href="../full/index.html" class="nav-link">
+								<i class="ph-house"></i>
+								<span>Dashboard</span>
+							</a>
+						</li>
+
+						<!-- Layout -->
+						<li class="nav-item-header">
+							<div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">Programmes sociaux</div>
+							<i class="ph-dots-three sidebar-resize-show"></i>
+						</li>
+						<li class="nav-item nav-item-submenu {% if 'fournisseurs' in request.path %}nav-item-expanded nav-item-open{% endif %}">
+							<a href="#" class="nav-link">
+								<i class="ph-layout"></i>
+								<span>Gestion des fournisseurs</span>
+							</a>
+						
+							<ul class="nav-group-sub collapse {% if 'fournisseurs' in request.path %}show{% endif %}">
+								<li class="nav-item">
+									<a href="{{ url_for('fournisseurs.list_fournisseurs') }}" class="nav-link {% if request.endpoint == 'fournisseurs.list_fournisseurs' %}active{% endif %}">
+										<i class="ph-plus-circle"></i>
+										<span>Liste des fournisseurs</span>
+									</a>
+								</li>
+								<li class="nav-item">
+									<a href="{{ url_for('fournisseurs.ajouter_fournisseur') }}" class="nav-link {% if request.endpoint == 'fournisseurs.ajouter_fournisseur' %}active{% endif %}">
+										<i class="ph-plus-circle"></i>
+										<span>Ajouter un fournisseur</span>
+									</a>
+								</li>
+							</ul>
+						</li>
+						
+						<li class="nav-item nav-item-submenu {% if 'produits' in request.path %}nav-item-expanded nav-item-open{% endif %}">
+							<a href="#" class="nav-link">
+								<i class="ph-layout"></i>
+								<span>Gestion des produits</span>
+							</a>
+						
+							<ul class="nav-group-sub collapse {% if 'produits' in request.path %}show{% endif %}">
+								<li class="nav-item">
+									<a href="{{ url_for('produits.list_produits') }}" class="nav-link {% if request.endpoint == 'produits.list_produits' %}active{% endif %}">
+										<i class="ph-plus-circle"></i>
+										<span>Liste des produits</span>
+									</a>
+								</li>
+								<li class="nav-item">
+									<a href="{{ url_for('produits.ajouter_produit') }}" class="nav-link {% if request.endpoint == 'produits.ajouter_produit' %}active{% endif %}">
+										<i class="ph-plus-circle"></i>
+										<span>Ajouter un produit</span>
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="nav-item nav-item-submenu {% if 'fournisseurs' in request.path %}nav-item-expanded nav-item-open{% endif %}">
+							<a href="#" class="nav-link">
+								<i class="ph-layout"></i>
+								<span>Volet de passation</span>
+							</a>
+						
+							<ul class="nav-group-sub collapse {% if 'passation' in request.path %}show{% endif %}">
+								<li class="nav-item">
+									<a href="{{ url_for('consultations.list_consultations') }}" class="nav-link {% if request.endpoint == 'consultations.list_consultations' %}active{% endif %}">
+										<i class="ph-plus-circle"></i>
+										<span>Consultations</span>
+									</a>
+								</li>
+								<li class="nav-item">
+									<a href="{{ url_for('ententes.list_ententes') }}" class="nav-link {% if request.endpoint == 'ententes.list_ententes' %}active{% endif %}">
+										<i class="ph-plus-circle"></i>
+										<span>Ententes</span>
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="nav-item nav-item-submenu">
+							<a href="#" class="nav-link"><i class="ph-arrow-elbow-down-right"></i> <span>Menu levels</span></a>
+							<ul class="nav-group-sub collapse">
+								<li class="nav-item"><a href="#" class="nav-link">Second level</a></li>
+								<li class="nav-item nav-item-submenu">
+									<a href="#" class="nav-link">Second level with child</a>
+									<ul class="nav-group-sub collapse">
+										<li class="nav-item"><a href="#" class="nav-link">Third level</a></li>
+										<li class="nav-item nav-item-submenu">
+											<a href="#" class="nav-link">Third level with child</a>
+											<ul class="nav-group-sub collapse">
+												<li class="nav-item"><a href="#" class="nav-link">Fourth level</a></li>
+												<li class="nav-item"><a href="#" class="nav-link">Fourth level</a></li>
+											</ul>
+										</li>
+										<li class="nav-item"><a href="#" class="nav-link">Third level</a></li>
+									</ul>
+								</li>
+								<li class="nav-item"><a href="#" class="nav-link">Second level</a></li>
+							</ul>
+						</li>
+						<!-- /layout -->
+
+					</ul>
+				</div>
+				<!-- /main navigation -->
+
+			</div>
+			<!-- /sidebar content -->
+			
+		</div>
+		<!-- /main sidebar -->
+
+
+		<!-- Main content -->
+		<div class="content-wrapper">
+
+			<!-- Page header -->
+			<div class="page-header page-header-light page-header-static shadow">
+				<div class="page-header-content d-lg-flex">
+					<div class="d-flex">
+						<h4 class="page-title mb-0">
+							Seed - <span class="fw-normal">Fixed Header</span>
+						</h4>
+
+						<a href="#page_header" class="btn btn-light align-self-center collapsed d-lg-none border-transparent rounded-pill p-0 ms-auto" data-bs-toggle="collapse">
+							<i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
+						</a>
+					</div>
+
+					<div class="collapse d-lg-block my-lg-auto ms-lg-auto" id="page_header">
+						<div class="hstack gap-3 mb-3 mb-lg-0">
+							<button type="button" class="btn btn-primary">
+								<i class="ph-gear me-2"></i>
+								Button
+							</button>
+
+							<div class="dropdown">
+								<button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
+									Dropdown
+								</button>
+
+								<div class="dropdown-menu dropdown-menu-end">
+									<button type="button" class="dropdown-item">Menu item 1</button>
+									<button type="button" class="dropdown-item">Menu item 2</button>
+									<button type="button" class="dropdown-item">Menu item 3</button>
+									<div class="dropdown-divider"></div>
+									<button type="button" class="dropdown-item">Menu item 4</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="page-header-content d-lg-flex border-top">
+					<div class="d-flex">
+						<div class="breadcrumb py-2">
+							<a href="{{ url_for('fournisseurs.list_fournisseurs') }}" class="breadcrumb-item"><i class="ph-house"></i> Home</a>
+							{% for breadcrumb in breadcrumbs %}
+								{% if not loop.last %}
+									<a href="{{ breadcrumb.url }}" class="breadcrumb-item">{{ breadcrumb.name }}</a>
+								{% else %}
+									<span class="breadcrumb-item active">{{ breadcrumb.name }}</span>
+								{% endif %}
+							{% endfor %}
+							
+						</div>
+
+						<a href="#breadcrumb_elements" class="btn btn-light align-self-center collapsed d-lg-none border-transparent rounded-pill p-0 ms-auto" data-bs-toggle="collapse">
+							<i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
+						</a>
+					</div>
+
+					<div class="collapse d-lg-block ms-lg-auto" id="breadcrumb_elements">
+						<div class="d-lg-flex mb-2 mb-lg-0">
+							<a href="#" class="d-flex align-items-center text-body py-2">
+								Link
+							</a>
+
+							<div class="dropdown ms-lg-3">
+								<a href="#" class="d-flex align-items-center text-body dropdown-toggle py-2" data-bs-toggle="dropdown">
+									<span class="flex-1">Dropdown</span>
+								</a>
+
+								<div class="dropdown-menu dropdown-menu-end w-100 w-lg-auto">
+									<a href="#" class="dropdown-item">
+										Action
+									</a>
+									<a href="#" class="dropdown-item">
+										Another action
+									</a>
+									<a href="#" class="dropdown-item">
+										One more action
+									</a>
+									<div class="dropdown-divider"></div>
+									<a href="#" class="dropdown-item">
+										Separate action
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /page header -->
+
+
+			<!-- Inner content -->
+			<div class="content-inner">
+
+				<!-- Content area -->
+				<div class="content">
+					<!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container mt-3">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    <!-- /Flash messages -->
+
+					{% block content %}
+			
+					{% endblock %}
+				</div>
+				<!-- /content area -->
+
+
+				<!-- Footer -->
+				<div class="navbar navbar-sm navbar-footer border-top">
+					<div class="container-fluid">
+						<span>&copy; 2022 <a href="https://themeforest.net/item/limitless-responsive-web-application-kit/13080328">Limitless Web App Kit</a></span>
+
+						<ul class="nav">
+							<li class="nav-item">
+								<a href="https://kopyov.ticksy.com/" class="navbar-nav-link navbar-nav-link-icon rounded" target="_blank">
+									<div class="d-flex align-items-center mx-md-1">
+										<i class="ph-lifebuoy"></i>
+										<span class="d-none d-md-inline-block ms-2">Support</span>
+									</div>
+								</a>
+							</li>
+							<li class="nav-item ms-md-1">
+								<a href="https://demo.interface.club/limitless/demo/Documentation/index.html" class="navbar-nav-link navbar-nav-link-icon rounded" target="_blank">
+									<div class="d-flex align-items-center mx-md-1">
+										<i class="ph-file-text"></i>
+										<span class="d-none d-md-inline-block ms-2">Docs</span>
+									</div>
+								</a>
+							</li>
+							<li class="nav-item ms-md-1">
+								<a href="https://themeforest.net/item/limitless-responsive-web-application-kit/13080328?ref=kopyov" class="navbar-nav-link navbar-nav-link-icon text-primary bg-primary bg-opacity-10 fw-semibold rounded" target="_blank">
+									<div class="d-flex align-items-center mx-md-1">
+										<i class="ph-shopping-cart"></i>
+										<span class="d-none d-md-inline-block ms-2">Purchase</span>
+									</div>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<!-- /footer -->
+
+			</div>
+			<!-- /inner content -->
+
+		</div>
+		<!-- /main content -->
+
+	</div>
+	<!-- /page content -->
+
+
+	<!-- Demo config -->
+	<div class="offcanvas offcanvas-end" tabindex="-1" id="demo_config">
+		<div class="position-absolute top-50 end-100 visible">
+			<button type="button" class="btn btn-primary btn-icon translate-middle-y rounded-end-0" data-bs-toggle="offcanvas" data-bs-target="#demo_config">
+				<i class="ph-gear"></i>
+			</button>
+		</div>
+
+		<div class="offcanvas-header border-bottom py-0">
+			<h5 class="offcanvas-title py-3">Demo configuration</h5>
+			<button type="button" class="btn btn-light btn-sm btn-icon border-transparent rounded-pill" data-bs-dismiss="offcanvas">
+				<i class="ph-x"></i>
+			</button>
+		</div>
+
+		<div class="offcanvas-body">
+			<div class="fw-semibold mb-2">Color mode</div>
+			<div class="list-group mb-3">
+				<label class="list-group-item list-group-item-action form-check border-width-1 rounded mb-2">
+					<div class="d-flex flex-fill my-1">
+						<div class="form-check-label d-flex me-2">
+							<i class="ph-sun ph-lg me-3"></i>
+							<div>
+								<span class="fw-bold">Light theme</span>
+								<div class="fs-sm text-muted">Set light theme or reset to default</div>
+							</div>
+						</div>
+						<input type="radio" class="form-check-input cursor-pointer ms-auto" name="main-theme" value="light" checked>
+					</div>
+				</label>
+
+				<label class="list-group-item list-group-item-action form-check border-width-1 rounded mb-2">
+					<div class="d-flex flex-fill my-1">
+						<div class="form-check-label d-flex me-2">
+							<i class="ph-moon ph-lg me-3"></i>
+							<div>
+								<span class="fw-bold">Dark theme</span>
+								<div class="fs-sm text-muted">Switch to dark theme</div>
+							</div>
+						</div>
+						<input type="radio" class="form-check-input cursor-pointer ms-auto" name="main-theme" value="dark">
+					</div>
+				</label>
+
+				<label class="list-group-item list-group-item-action form-check border-width-1 rounded mb-0">
+					<div class="d-flex flex-fill my-1">
+						<div class="form-check-label d-flex me-2">
+							<i class="ph-translate ph-lg me-3"></i>
+							<div>
+								<span class="fw-bold">Auto theme</span>
+								<div class="fs-sm text-muted">Set theme based on system mode</div>
+							</div>
+						</div>
+						<input type="radio" class="form-check-input cursor-pointer ms-auto" name="main-theme" value="auto">
+					</div>
+				</label>
+			</div>
+
+			<div class="fw-semibold mb-2">Direction</div>
+			<div class="list-group mb-3">
+				<label class="list-group-item list-group-item-action form-check border-width-1 rounded mb-0">
+					<div class="d-flex flex-fill my-1">
+						<div class="form-check-label d-flex me-2">
+							<i class="ph-translate ph-lg me-3"></i>
+							<div>
+								<span class="fw-bold">RTL direction</span>
+								<div class="text-muted">Toggle between LTR and RTL</div>
+							</div>
+						</div>
+						<input type="checkbox" name="layout-direction" value="rtl" class="form-check-input cursor-pointer m-0 ms-auto">
+					</div>
+				</label>
+			</div>
+
+			<div class="fw-semibold mb-2">Layouts</div>
+			<div class="row">
+				<div class="col-12">
+					<a href="index.html" class="d-block mb-3">
+						<img src="https://demo.interface.club/limitless/assets/images/layouts/layout_1.png" class="img-fluid img-thumbnail bg-primary bg-opacity-20 border-primary" alt="">
+					</a>
+				</div>
+				<div class="col-12">
+					<a href="../../layout_2/full/index.html" class="d-block mb-3">
+						<img src="https://demo.interface.club/limitless/assets/images/layouts/layout_2.png" class="img-fluid img-thumbnail" alt="">
+					</a>
+				</div>
+				<div class="col-12">
+					<a href="../../layout_3/full/index.html" class="d-block mb-3">
+						<img src="https://demo.interface.club/limitless/assets/images/layouts/layout_3.png" class="img-fluid img-thumbnail" alt="">
+					</a>
+				</div>
+				<div class="col-12">
+					<a href="../../layout_4/full/index.html" class="d-block mb-3">
+						<img src="https://demo.interface.club/limitless/assets/images/layouts/layout_4.png" class="img-fluid img-thumbnail" alt="">
+					</a>
+				</div>
+				<div class="col-12">
+					<a href="../../layout_5/full/index.html" class="d-block mb-3">
+						<img src="https://demo.interface.club/limitless/assets/images/layouts/layout_5.png" class="img-fluid img-thumbnail" alt="">
+					</a>
+				</div>
+				<div class="col-12">
+					<a href="../../layout_6/full/index.html" class="d-block">
+						<img src="https://demo.interface.club/limitless/assets/images/layouts/layout_6.png" class="img-fluid img-thumbnail" alt="">
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="border-top text-center py-2 px-3">
+			<a href="https://themeforest.net/item/limitless-responsive-web-application-kit/13080328?ref=kopyov" class="btn btn-yellow fw-semibold w-100 my-1" target="_blank">
+				<i class="ph-shopping-cart me-2"></i>
+				Purchase Limitless
+			</a>
+		</div>
+	</div>
+	<!-- /demo config -->
+
+</body>
+</html>

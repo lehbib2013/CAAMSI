@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Modifier une Entente Directe{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Modifier une Entente Directe</h2>
+    <form action="{{ url_for('ententes.edit_entente', id=entente.id) }}" method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="designation" class="form-label">Désignation</label>
+            <input type="text" id="designation" name="designation" class="form-control" value="{{ entente.designation }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="criteres_qualification" class="form-label">Critères de qualification</label>
+            <select id="criteres_qualification" name="criteres_qualification" class="form-control">
+                <option value="PAR_PRODUIT" {% if entente.criteres_qualification == 'PAR_PRODUIT' %}selected{% endif %}>Par produit</option>
+                <option value="PAR_OFFRE" {% if entente.criteres_qualification == 'PAR_OFFRE' %}selected{% endif %}>Par offre</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="pv_negociation" class="form-label">PV de négociation</label>
+            <input type="file" id="pv_negociation" name="pv_negociation" class="form-control">
+            <div class="form-text">Fichier actuel: {{ entente.pv_negociation_filename }}</div>
+        </div>
+        <div class="mb-3">
+            <label for="offre_technique" class="form-label">Offre technique</label>
+            <input type="file" id="offre_technique" name="offre_technique" class="form-control">
+            <div class="form-text">Fichier actuel: {{ entente.offre_technique_filename }}</div>
+        </div>
+        <div class="mb-3">
+            <label for="offre_financiere" class="form-label">Offre financière</label>
+            <input type="file" id="offre_financiere" name="offre_financiere" class="form-control">
+            <div class="form-text">Fichier actuel: {{ entente.offre_financiere_filename }}</div>
+        </div>
+        <div class="mb-3">
+            <label for="justificatif_recours" class="form-label">Justificatif de recours</label>
+            <input type="file" id="justificatif_recours" name="justificatif_recours" class="form-control">
+            <div class="form-text">Fichier actuel: {{ entente.justificatif_recours_filename }}</div>
+        </div>
+        <button type="submit" class="btn btn-primary">Modifier</button>
+        <a href="{{ url_for('ententes.list_ententes') }}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

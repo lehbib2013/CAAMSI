@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}Ajouter  d une consultaion{% endblock %}
+
+{% block content %}
+<h1>Consultations des Fournisseurs</h1>
+
+    
+<a href="{{ url_for('consultations.add_consultation') }}" class="btn btn-primary">
+    <i class="ph-plus me-2"></i>
+    Ajouter une Consultation
+</a>
+
+
+<div class="row">
+    {% for consultation in consultations %}
+<div class="col-lg-6">
+    <div class="card custom-card">
+        <div class="card-body">
+            <div class="d-sm-flex align-item-sm-center flex-sm-nowrap">
+                <div>
+                    <h6>Objet du marche</h6>
+                    <ul class="list list-unstyled mb-0">
+                        <li>RFQ n : <span class="fw-semibold">003/..../...../..../2025</span></li>
+                        <li>Voie:<span class="fw-semibold">{{consultation.voie_soumission}}</span></li>
+                        <li class="dropdown">
+                            Status:
+                            <a href="#" class="link-danger fw-semibold d-inline-flex align-items-center dropdown-toggle ms-1" data-bs-toggle="dropdown">
+                                {{ consultation.statut.value }}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a href="#" class="dropdown-item active">
+                                    <i class="ph-warning-circle me-2"></i>
+                                    encours de preparation
+                                </a>
+                                <a href="#" class="dropdown-item ">
+                                    <i class="ph-warning-circle me-2"></i>
+                                    lance
+                                </a>
+                                <a href="#" class="dropdown-item ">
+                                    <i class="ph-warning-circle me-2"></i>
+                                    Ouverture
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <i class="ph-clock me-2"></i>
+                                    Evalue
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <i class="ph-check-circle me-2"></i>
+                                    Attribue
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="#" class="dropdown-item">
+                                    <i class="ph-spinner-gap me-2"></i>
+                                    Infricteuse
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <i class="ph-x me-2"></i>
+                                    Resilie
+                                </a>
+                            </div>
+                        </li>
+                        
+                        
+                    </ul>
+                </div>
+
+                <div class="text-sm-end mb-0 mt-3 mt-sm-0 ms-auto">
+                    <h6>{{ consultation.designation }}</h6>
+                    <ul class="list list-unstyled mb-0">
+                       
+                       
+                        <li>Lacement:<span class="fw-semibold">{{consultation.date_lancement}}</span></li>
+                        <li>Evaluatuation, le:<span class="fw-semibold">{{consultation.date_evaluation}} </span></li>
+                 </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <span>
+                <i class="ph-bell-ringing me-1"></i>
+                Limite depot:
+                <span class="fw-semibold">2022/02/25</span>
+            </span>
+
+            <div class="d-inline-flex">
+                <a href="#" class="text-body" data-bs-toggle="modal" data-bs-target="#invoice">
+                    <i class="ph-arrow-square-out"></i>
+                </a>
+                <div class="d-inline-flex dropdown ms-3">
+                    <a href="#" class="d-inline-flex align-items-center text-body dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="ph-list"></i>
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a href="#" class="dropdown-item">
+                            <i class="ph-printer me-2"></i>
+                            Telecharger note de service commission Ad Hoc
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="ph-printer me-2"></i>
+                            Telecharger le justificatif d achat
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="ph-printer me-2"></i>
+                            Telecharger le rapport d evaluation
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="ph-printer me-2"></i>
+                            Telecharger la demande de cotation
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="ph-file-arrow-down me-2"></i>
+                            Telecharger la liste des fournisseurs
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        
+                        <a href="{{ url_for('consultations.view_consultation', consultation_id=consultation.id) }}" class="dropdown-item">
+                            Voir les détails
+                        </a>
+
+                        <form action="{{ url_for('consultations.delete_consultation', id=consultation.id) }}" method="POST" style="display:inline;">
+                            <i class="ph-x me-2"></i>  <button type="submit" class="dropdown-item" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette consultation ?');">Supprimer</button>
+                        </form>
+                      
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+  <!-- Modal for Consultation -->
+  <div class="modal fade" id="consultationModal{{ consultation.id }}" tabindex="-1" aria-labelledby="consultationModalLabel{{ consultation.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="consultationModalLabel{{ consultation.id }}">Consultation: {{ consultation.designation }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Tabs -->
+                <ul class="nav nav-tabs" id="consultationTabs{{ consultation.id }}" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="details-tab{{ consultation.id }}" data-bs-toggle="tab" data-bs-target="#details{{ consultation.id }}" type="button" role="tab" aria-controls="details{{ consultation.id }}" aria-selected="true">
+                            Détails de la Consultation
+                        </button>
+                    </li>
+                    {% if consultation is not none %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="products-tab{{ consultation.id }}" data-bs-toggle="tab" data-bs-target="#products{{ consultation.id }}" type="button" role="tab" aria-controls="products{{ consultation.id }}" aria-selected="false">
+                            Produits Associés
+                        </button>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content mt-3" id="consultationTabsContent{{ consultation.id }}">
+                    <!-- Consultation Details Tab -->
+                    {% if consultation is not none %}
+                    <div class="tab-pane fade show active" id="details{{ consultation.id }}" role="tabpanel" aria-labelledby="details-tab{{ consultation.id }}">
+                        {% include 'passation/edit_consultation.html' %}
+                    </div>
+                    {% else %}
+
+                     <div class="tab-pane fade show active" id="details{{ consultation.id }}" role="tabpanel" aria-labelledby="details-tab{{ consultation.id }}">
+                        {% include 'passation/add_consultation.html' %}
+                    </div>
+                    {% endif  %}
+                    <!-- Products Tab -->
+                    {% if consultation is not none %}
+                    <div class="tab-pane fade" id="products{{ consultation.id }}" role="tabpanel" aria-labelledby="products-tab{{ consultation.id }}">
+                        {% include 'passation/add_products.html' %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
+
+
+
+{% endblock %}
