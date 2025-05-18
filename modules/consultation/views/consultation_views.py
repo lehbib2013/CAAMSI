@@ -1,6 +1,6 @@
 from flask import jsonify, render_template, request, redirect, url_for, flash
 from sqlalchemy import func
-from models.db import CautionSoumission, CriteresQualificationEnum, Fournisseur, Marche, MarchePart, MarcheProduit, OffreFinanciere, OffreTechnique, Produit, Session, ConsultationFournisseurs, Soumission, StatutEnum
+from models.db import AttributionMarche,CautionSoumission, CriteresQualificationEnum, Fournisseur, Marche, MarchePart, MarcheProduit, OffreFinanciere, OffreTechnique, Produit, Session, ConsultationFournisseurs, Soumission, StatutEnum
 from modules.consultation import consultation_bp
 from datetime import datetime, date
 from flask_wtf.csrf import generate_csrf
@@ -55,7 +55,7 @@ def view_consultation(consultation_id):
             {"name": "Lancement", "done": consultation.demande_cotation and consultation.liste_fournisseurs_consulter and consultation.ppm_ou_justificatif_achat and consultation.pv_designation_comission_ad_hoc and consultation.numero_rfq and consultation.voie_soumission, "blocked": False},
             {"name": "Ouverture", "done": consultation.date_ouverture and consultation.pv_ouverture, "blocked": False},
             {"name": "Évaluation", "done": consultation.date_evaluation and consultation.pv_evaluation, "blocked": False},
-            {"name": "Attribution provisoire", "done": consultation.pv_attribution, "blocked": False},
+            {"name": "Attribution provisoire", "done": consultation.pv_attribution_filename is not None and consultation.pv_attribution_filename != "","blocked": False},
             {"name": "Contrat", "done":  consultation.contrat, "blocked": False},
             {"name": "Numérotation", "done": consultation.numerotation, "blocked": False},
         ]
@@ -964,6 +964,111 @@ def update_marche_part(marche_id, part_id):
             return jsonify({'success': False, 'error': str(e)}), 400
 
         return jsonify({'success': True, 'message': 'Part updated successfully'})
+    except Exception as e:
+        session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
+
+
+
+# classement des offres
+
+@consultation_bp.route('/marches/<int:marche_id>/offres_financieres', methods=['GET'])
+def compare_offres_financieres(marche_id):
+    session = Session()
+    try:
+        # Fetch the Marche
+        marche = session.query(Marche).filter_by(id=marche_id).first()
+        if not marche:
+            return jsonify({'success': False, 'error': 'Marche not found'}), 404
+
+        # Initialize a list to store attributions
+        attributions = []
+
+        # Check the criteres_qualification
+        if marche.criteres_qualification == CriteresQualificationEnum.PAR_PRODUIT:
+            # Group financial offers by produit_id and sort by descending prix_unitaire_mru
+            offres = (
+                session.query(OffreFinanciere)
+                .join(Soumission)
+                .filter(Soumission.consultation_fournisseurs_id == marche_id)
+                .order_by(OffreFinanciere.produit_id, OffreFinanciere.prix_unitaire_mru.asc())
+                .all()
+            )
+            grouped_offres = {}
+            for offre in offres:
+                produit_id = offre.produit_id
+                if produit_id not in grouped_offres:
+                    grouped_offres[produit_id] = []
+                grouped_offres[produit_id].append(offre)
+
+            # Save attributions for each produit_id
+            for produit_id, offres_list in grouped_offres.items():
+                for offre in offres_list:
+                    attribution = AttributionMarche(
+                        marche_id=marche_id,
+                        fournisseur_id=offre.soumission.fournisseur_id,
+                        produit_id=produit_id,
+                        quantite=offre.qte,
+                        prix_unitaire=offre.prix_unitaire_mru,
+                        prix_total=offre.prix_total,
+                        offre_technique=offre.soumission.soumission_document,  # Fill with the same value from Soumission
+                        offre_technique_filename=offre.soumission.soumission_document_filename,  # Filename for the technical offer
+                        offre_financiere=offre.soumission.soumission_document,  # Fill with the same value from Soumission
+                        offre_financiere_filename=offre.soumission.soumission_document_filename  # Filename for the financial offer
+                    )
+                    session.add(attribution)
+                    attributions.append({
+                        'produit_id': produit_id,
+                        'fournisseur_id': offre.soumission.fournisseur_id,
+                        'quantite': offre.qte,
+                        'prix_unitaire': offre.prix_unitaire_mru,
+                        'prix_total': offre.prix_total,
+                        'offre_technique': offre.soumission.soumission_document,  # Fill with the same value from Soumission
+                        'offre_technique_filename':offre.soumission.soumission_document_filename,  # Filename for the technical offer
+                        'offre_financiere':offre.soumission.soumission_document,  # Fill with the same value from Soumission
+                        'offre_financiere_filename':offre.soumission.soumission_document_filename  # Filename for the financial offer
+
+
+                    })
+
+        elif marche.criteres_qualification == CriteresQualificationEnum.PAR_OFFRE:
+            # Sort soumissions by ascending montant_total
+            soumissions = (
+                session.query(Soumission)
+                .filter(Soumission.consultation_fournisseurs_id == marche_id)
+                .order_by(Soumission.montant_total.asc())
+                .all()
+            )
+
+            # Save attributions for each soumission
+            for soumission in soumissions:
+                attribution = AttributionMarche(
+                    marche_id=marche_id,
+                    fournisseur_id=soumission.fournisseur_id,
+                    produit_id=offre.produit_id,  # No specific produit_id for PAR_OFFRE
+                    quantite=None,  # No specific quantity for PAR_OFFRE
+                    prix_unitaire=None,  # No specific unit price for PAR_OFFRE
+                    prix_total=soumission.montant_total,
+                    offre_technique=soumission.soumission_document,  # Fill with the same value from Soumission
+                    offre_technique_filename=soumission.soumission_document_filename,  # Filename for the technical offer
+                    offre_financiere=soumission.soumission_document,  # Fill with the same value from Soumission
+                    offre_financiere_filename=soumission.soumission_document_filename  # Filename for the financial offer
+                )
+                session.add(attribution)
+                attributions.append({
+                    'fournisseur_id': soumission.fournisseur_id,
+                    'montant_total': soumission.montant_total
+                })
+
+        else:
+            return jsonify({'success': False, 'error': 'Invalid criteres_qualification'}), 400
+
+        # Commit the attributions to the database
+        session.commit()
+
+        return jsonify({'success': True, 'data': attributions})
     except Exception as e:
         session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500

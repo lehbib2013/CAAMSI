@@ -70,32 +70,7 @@
                     <button class="btn btn-success btn-sm update-product" data-product-id="{{ produit.id }}">Mettre à jour</button>
                     <button class="btn btn-danger btn-sm delete-product" data-product-id="{{ produit.id }}">Supprimer</button>
                     </td>
-                    <td>
-                        <div id="marcheParts" data-product-id="{{ produit.id }}">
-                           
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Part ID</th>
-                                        <th>Quantity</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for part in produit.marche_parts %}
-                                    <tr>
-                                        <td>{{ part.id }}</td>
-                                        <td>{{ part.quantite }}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-primary" onclick="editPart({{ part.id }})">Edit</button>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                            <button class="btn btn-sm btn-success" onclick="addPart({{ produit.id }})">Add Part</button>
-                        </div>
-                    </td>
+                    
             </tr>
             {% endfor %}
         </tbody>

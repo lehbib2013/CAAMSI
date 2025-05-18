@@ -236,7 +236,9 @@
         </div>
 
          <!-- Évaluation Tab -->
+        
          <div class="tab-pane fade {% if active_tab == 'evaluation' %}show active{% endif %}" id="evaluation" role="tabpanel" aria-labelledby="evaluation-tab">
+            <div class="container mt-4  custom-table-container">
             <h5>Évaluation</h5>
             <form action="{{ url_for('consultations.update_evaluation', id=consultation.id) }}" method="POST" enctype="multipart/form-data">
                 <div class="row mb-3">
@@ -252,10 +254,7 @@
                         <div class="form-text">Fichier actuel: {{ consultation.pv_evaluation_filename }}</div>
                     </div>
 
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="infructure" name="infructure" {% if consultation.infructure %}checked{% endif %}>
-                        <label class="form-check-label" for="infructure">Déclarer comme infructueuse</label>
-                    </div>
+                
                 </div>
 
                 
@@ -263,8 +262,82 @@
             </form>
         </div>
 
+        <div class="container mt-4 custom-table-container">
+            <h5>Classement des Offres</h5>
+            <button id="fetch-offres-btn" class="btn btn-primary" data-marche-id="{{ consultation.id }}">Fetch Offres</button>
+            <div id="offres-container" class="mt-3"></div>
+        
+            <script>
+                document.getElementById('fetch-offres-btn').addEventListener('click', function () {
+                    const marcheId = this.getAttribute('data-marche-id');
+                    if (!marcheId) {
+                        alert('Marche ID is missing.');
+                        return;
+                    }
+                    fetch(`marches/${marcheId}/offres_financieres`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                renderOffresTable(data.data);
+                            } else {
+                                alert(data.error || 'An error occurred while fetching financial offers.');
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                });
+        
+                function renderOffresTable(data) {
+                    const container = document.getElementById('offres-container');
+                    container.innerHTML = ''; // Clear previous content
+        
+                    if (data.length === 0) {
+                        container.innerHTML = '<p>No offers found.</p>';
+                        return;
+                    }
+        
+                    const table = document.createElement('table');
+                    table.className = 'table table-bordered';
+                    table.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>Fournisseur ID</th>
+                                <th>Produit ID</th>
+                                <th>Quantité</th>
+                                <th>Prix Unitaire (MRU)</th>
+                                <th>Prix Total</th>
+                                <th>Offre Technique</th>
+                                <th>Offre Financière</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.map(attribution => `
+                                <tr>
+                                    <td>${attribution.fournisseur_id}</td>
+                                    <td>${attribution.produit_id || 'N/A'}</td>
+                                    <td>${attribution.quantite || 'N/A'}</td>
+                                    <td>${attribution.prix_unitaire || 'N/A'}</td>
+                                    <td>${attribution.prix_total}</td>
+                                    <td>${attribution.offre_technique_filename || 'N/A'}</td>
+                                    <td>${attribution.offre_financiere_filename || 'N/A'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    `;
+                    container.appendChild(table);
+                }
+            </script>
+        </div>
+
+        </div>
+
         <!-- Attribution Tab -->
         <div class="tab-pane fade {% if active_tab == 'attribution' %}show active{% endif %}" id="attribution" role="tabpanel" aria-labelledby="attribution-tab">
+            <div class="container mt-4  custom-table-container">
             <h5>Attribution</h5>
             <form action="{{ url_for('consultations.update_attribution_provisoire', id=consultation.id) }}" method="POST" enctype="multipart/form-data">
                 <div class="row mb-3">
@@ -274,8 +347,13 @@
                         <div class="form-text">Fichier actuel : {{ consultation.pv_attribution_filename }}</div>
                     </div>
                 </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="infructure" name="infructure" {% if consultation.infructure %}checked{% endif %}>
+                    <label class="form-check-label" for="infructure">Déclarer comme infructueuse</label>
+                </div>
                 <button type="submit" class="btn btn-primary" {% if steps[3].archived or steps[4].archived %}disabled{% endif %}>Mettre à jour</button>
             </form>
+            </div>
         </div>
 
         <!-- Annulation Tab -->
