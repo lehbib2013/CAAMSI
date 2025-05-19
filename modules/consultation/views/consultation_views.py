@@ -988,7 +988,7 @@ def compare_offres_financieres(marche_id):
 
         # Check the criteres_qualification
         if marche.criteres_qualification == CriteresQualificationEnum.PAR_PRODUIT:
-            # Group financial offers by produit_id and sort by descending prix_unitaire_mru
+            # Group financial offers by produit_id and sort by ascending prix_unitaire_mru
             offres = (
                 session.query(OffreFinanciere)
                 .join(Soumission)
@@ -1003,34 +1003,61 @@ def compare_offres_financieres(marche_id):
                     grouped_offres[produit_id] = []
                 grouped_offres[produit_id].append(offre)
 
-            # Save attributions for each produit_id
+            # Process attributions for each produit_id
             for produit_id, offres_list in grouped_offres.items():
                 for offre in offres_list:
-                    attribution = AttributionMarche(
-                        marche_id=marche_id,
-                        fournisseur_id=offre.soumission.fournisseur_id,
-                        produit_id=produit_id,
-                        quantite=offre.qte,
-                        prix_unitaire=offre.prix_unitaire_mru,
-                        prix_total=offre.prix_total,
-                        offre_technique=offre.soumission.soumission_document,  # Fill with the same value from Soumission
-                        offre_technique_filename=offre.soumission.soumission_document_filename,  # Filename for the technical offer
-                        offre_financiere=offre.soumission.soumission_document,  # Fill with the same value from Soumission
-                        offre_financiere_filename=offre.soumission.soumission_document_filename  # Filename for the financial offer
-                    )
-                    session.add(attribution)
+                    # Check if the offer is excluded
+                    if offre.exclure:
+                        attributed = True
+                    else:
+                        # Check if an attribution already exists
+                        existing_attribution = session.query(AttributionMarche).filter_by(
+                            marche_id=marche_id,
+                            fournisseur_id=offre.soumission.fournisseur_id,
+                            produit_id=produit_id
+                        ).first()
+
+                        if existing_attribution:
+                            # Update the existing attribution
+                            existing_attribution.quantite = offre.qte
+                            existing_attribution.prix_unitaire = offre.prix_unitaire_mru
+                            existing_attribution.prix_total = offre.prix_total
+                            existing_attribution.offre_technique = offre.soumission.soumission_document
+                            existing_attribution.offre_technique_filename = offre.soumission.soumission_document_filename
+                            existing_attribution.offre_financiere = offre.soumission.soumission_document
+                            existing_attribution.offre_financiere_filename = offre.soumission.soumission_document_filename
+                            attributed = True
+                        else:
+                            # Create a new attribution
+                            new_attribution = AttributionMarche(
+                                marche_id=marche_id,
+                                fournisseur_id=offre.soumission.fournisseur_id,
+                                produit_id=produit_id,
+                                quantite=offre.qte,
+                                prix_unitaire=offre.prix_unitaire_mru,
+                                prix_total=offre.prix_total,
+                                offre_technique=offre.soumission.soumission_document,
+                                offre_technique_filename=offre.soumission.soumission_document_filename,
+                                offre_financiere=offre.soumission.soumission_document,
+                                offre_financiere_filename=offre.soumission.soumission_document_filename
+                            )
+                            session.add(new_attribution)
+                            attributed = False
+
+                    # Append the attribution details to the response
                     attributions.append({
                         'produit_id': produit_id,
                         'fournisseur_id': offre.soumission.fournisseur_id,
                         'quantite': offre.qte,
                         'prix_unitaire': offre.prix_unitaire_mru,
                         'prix_total': offre.prix_total,
-                        'offre_technique': offre.soumission.soumission_document,  # Fill with the same value from Soumission
-                        'offre_technique_filename':offre.soumission.soumission_document_filename,  # Filename for the technical offer
-                        'offre_financiere':offre.soumission.soumission_document,  # Fill with the same value from Soumission
-                        'offre_financiere_filename':offre.soumission.soumission_document_filename  # Filename for the financial offer
-
-
+                        'offre_technique': offre.soumission.soumission_document,
+                        'offre_technique_filename': offre.soumission.soumission_document_filename,
+                        'offre_financiere': offre.soumission.soumission_document,
+                        'offre_financiere_filename': offre.soumission.soumission_document_filename,
+                        'exclure': offre.exclure,  # Include the exclure property
+                        'offre_id':offre.id,
+                        'attributed': attributed  # Indicate whether it was updated or newly created
                     })
 
         elif marche.criteres_qualification == CriteresQualificationEnum.PAR_OFFRE:
@@ -1047,7 +1074,7 @@ def compare_offres_financieres(marche_id):
                 attribution = AttributionMarche(
                     marche_id=marche_id,
                     fournisseur_id=soumission.fournisseur_id,
-                    produit_id=offre.produit_id,  # No specific produit_id for PAR_OFFRE
+                    produit_id=None,  # No specific produit_id for PAR_OFFRE
                     quantite=None,  # No specific quantity for PAR_OFFRE
                     prix_unitaire=None,  # No specific unit price for PAR_OFFRE
                     prix_total=soumission.montant_total,
@@ -1071,6 +1098,100 @@ def compare_offres_financieres(marche_id):
         return jsonify({'success': True, 'data': attributions})
     except Exception as e:
         session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
+
+@consultation_bp.route('/marches/<int:marche_id>/attributions', methods=['POST'])
+def create_or_update_attribution(marche_id):
+    session = Session()
+    try:
+        data = request.get_json()
+        attribution = session.query(AttributionMarche).filter_by(
+            marche_id=marche_id,
+            fournisseur_id=data['fournisseur_id'],
+            produit_id=data['produit_id']
+        ).first()
+
+        if attribution:
+            # Update existing attribution
+            attribution.quantite = data['quantite']
+            attribution.prix_unitaire = data['prix_unitaire']
+            attribution.prix_total = data['prix_total']
+            attribution.exclure = data['exclure']
+        else:
+            # Create new attribution
+            attribution = AttributionMarche(
+                marche_id=marche_id,
+                fournisseur_id=data['fournisseur_id'],
+                produit_id=data['produit_id'],
+                quantite=data['quantite'],
+                prix_unitaire=data['prix_unitaire'],
+                prix_total=data['prix_total'],
+                exclure=data['exclure']
+            )
+            session.add(attribution)
+
+        session.commit()
+        return jsonify({'success': True, 'message': 'Attribution created or updated successfully!'})
+    except Exception as e:
+        session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
+
+@consultation_bp.route('/soumissions/offres_financieres/<int:offre_id>/updateex', methods=['POST'])
+def update_offre_financiere_eval(offre_id):
+    session = Session()
+    try:
+        data = request.get_json()
+        offre = session.query(OffreFinanciere).get(offre_id)
+        if not offre:
+            return jsonify({'success': False, 'error': 'Offre not found'}), 404
+
+        # Update the exclure field
+        offre.exclure = data.get('exclure', offre.exclure)
+
+        session.commit()
+        return jsonify({'success': True, 'message': 'Offre updated successfully'})
+    except Exception as e:
+        session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
+
+
+@consultation_bp.route('/marches/attributions/<int:offre_id>/delete', methods=['DELETE'])
+def delete_attribution(offre_id):
+    session = Session()
+    try:
+        print(f"Attempting to delete attribution for offre_id: {offre_id}")  # Debugging log
+
+        # Explicitly define the join using select_from and on clauses
+        attribution = (
+            session.query(AttributionMarche)
+            .select_from(AttributionMarche)
+            .join(OffreFinanciere, 
+                  (AttributionMarche.produit_id == OffreFinanciere.produit_id) &
+                  (AttributionMarche.fournisseur_id == OffreFinanciere.soumission_id))
+            .filter(OffreFinanciere.id == offre_id)
+            .first()
+        )
+
+        if not attribution:
+            print("Attribution not found for the given offer.")  # Debugging log
+            return jsonify({'success': False, 'error': 'Attribution not found for the given offer'}), 404
+
+        print(f"Found attribution with ID: {attribution.id}")  # Debugging log
+
+        # Delete the attribution
+        session.delete(attribution)
+        session.commit()
+        print("Attribution deleted successfully.")  # Debugging log
+        return jsonify({'success': True, 'message': 'Attribution deleted successfully!'})
+    except Exception as e:
+        session.rollback()
+        print(f"Error occurred: {str(e)}")  # Debugging log
         return jsonify({'success': False, 'error': str(e)}), 500
     finally:
         session.close()

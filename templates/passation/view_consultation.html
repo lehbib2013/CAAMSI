@@ -268,12 +268,14 @@
             <div id="offres-container" class="mt-3"></div>
         
             <script>
-                document.getElementById('fetch-offres-btn').addEventListener('click', function () {
-                    const marcheId = this.getAttribute('data-marche-id');
+                // Fetch the offers and render the table
+                function fetchOffres() {
+                    const marcheId = document.getElementById('fetch-offres-btn').getAttribute('data-marche-id');
                     if (!marcheId) {
                         alert('Marche ID is missing.');
                         return;
                     }
+
                     fetch(`marches/${marcheId}/offres_financieres`)
                         .then(response => {
                             if (!response.ok) {
@@ -289,17 +291,18 @@
                             }
                         })
                         .catch(error => console.error('Error:', error));
-                });
-        
+                }
+
+                // Render the offers table
                 function renderOffresTable(data) {
                     const container = document.getElementById('offres-container');
                     container.innerHTML = ''; // Clear previous content
-        
+
                     if (data.length === 0) {
                         container.innerHTML = '<p>No offers found.</p>';
                         return;
                     }
-        
+
                     const table = document.createElement('table');
                     table.className = 'table table-bordered';
                     table.innerHTML = `
@@ -310,8 +313,8 @@
                                 <th>Quantité</th>
                                 <th>Prix Unitaire (MRU)</th>
                                 <th>Prix Total</th>
-                                <th>Offre Technique</th>
-                                <th>Offre Financière</th>
+                                <th>Technical Exclusion</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -322,14 +325,159 @@
                                     <td>${attribution.quantite || 'N/A'}</td>
                                     <td>${attribution.prix_unitaire || 'N/A'}</td>
                                     <td>${attribution.prix_total}</td>
-                                    <td>${attribution.offre_technique_filename || 'N/A'}</td>
-                                    <td>${attribution.offre_financiere_filename || 'N/A'}</td>
+                                    <td>
+                                    <input type="checkbox" class="form-check-input technical-exclusion" 
+                                        data-offre-id="${attribution.offre_id}" 
+                                        ${attribution.exclure ? 'checked' : ''} 
+                                        ${attribution.attributed ? 'disabled' : ''}>
+                                    ${!attribution.attributed ? `
+                                        <button class="btn btn-success btn-apply" 
+                                            data-offre-id="${attribution.offre_id}">
+                                            Apply
+                                        </button>
+                                    ` : ''}
+                                </td>
+                                    <td>
+                                         ${attribution.attributed ? `
+                                            <button class="btn btn-danger btn-undo" 
+                                                data-attribution-id="${attribution.offre_id}">
+                                                Undo
+                                            </button>
+                                        ` : `
+                                            <button class="btn btn-primary btn-attribuer" 
+                                                data-fournisseur-id="${attribution.fournisseur_id}" 
+                                                data-produit-id="${attribution.produit_id}" 
+                                                data-quantite="${attribution.quantite}" 
+                                                data-prix-unitaire="${attribution.prix_unitaire}" 
+                                                data-prix-total="${attribution.prix_total}">
+                                                Attribuer
+                                            </button>
+                                        `}
+                                    </td>
                                 </tr>
                             `).join('')}
                         </tbody>
                     `;
                     container.appendChild(table);
+
+                    // Add event listeners for "Apply" buttons
+                    document.querySelectorAll('.btn-apply').forEach(button => {
+                        button.addEventListener('click', function () {
+                            const offreId = this.getAttribute('data-offre-id');
+                            const checkbox = document.querySelector(`.technical-exclusion[data-offre-id="${offreId}"]`);
+                            const exclure = checkbox.checked; // Get the checkbox state (true/false)
+
+                            // Send the updated exclure value to the backend
+                            fetch(`soumissions/offres_financieres/${offreId}/updateex`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ exclure: exclure }),
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(`HTTP error! status: ${response.status}`);
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.success) {
+                                        alert('Offre updated successfully!');
+                                        // Re-fetch the data to re-render the table
+                                        fetchOffres();
+                                    } else {
+                                        alert(data.error || 'An error occurred while updating the offer.');
+                                    }
+                                })
+                                .catch(error => console.error('Error:', error));
+                        });
+                    });
+
+
+                // Add event listeners for "Undo" buttons
+                document.querySelectorAll('.btn-undo').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const attributionId = this.getAttribute('data-attribution-id');
+
+                        // Send a request to delete the attribution
+                        fetch(`marches/attributions/${attributionId}/delete`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! status: ${response.status}`);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    alert('Attribution deleted successfully!');
+                                    // Re-fetch the data to re-render the table
+                                    fetchOffres();
+                                } else {
+                                    alert(data.error || 'An error occurred while deleting the attribution.');
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                    });
+                });
+
+                    // Add event listeners for "Attribuer" buttons
+                    document.querySelectorAll('.btn-attribuer').forEach(button => {
+                        button.addEventListener('click', function () {
+                            const fournisseurId = this.getAttribute('data-fournisseur-id');
+                            const produitId = this.getAttribute('data-produit-id');
+                            const quantite = this.getAttribute('data-quantite');
+                            const prixUnitaire = this.getAttribute('data-prix-unitaire');
+                            const prixTotal = this.getAttribute('data-prix-total');
+
+                            // Get the checkbox value for "Technical Exclusion"
+                            const checkbox = document.querySelector(
+                                `.technical-exclusion[data-fournisseur-id="${fournisseurId}"][data-produit-id="${produitId}"]`
+                            );
+                            const exclure = checkbox.checked; // Get the checkbox state (true/false)
+
+                            // Send data to the backend to create or update an attribution
+                            fetch(`marches/${marcheId}/attributions`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    fournisseur_id: fournisseurId,
+                                    produit_id: produitId,
+                                    quantite: quantite,
+                                    prix_unitaire: prixUnitaire,
+                                    prix_total: prixTotal,
+                                    exclure: exclure, // Include the checkbox value
+                                }),
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(`HTTP error! status: ${response.status}`);
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.success) {
+                                        alert('Attribution created successfully!');
+                                        // Re-fetch the data to re-render the table
+                                        fetchOffres();
+                                    } else {
+                                        alert(data.error || 'An error occurred while creating the attribution.');
+                                    }
+                                })
+                                .catch(error => console.error('Error:', error));
+                        });
+                    });
                 }
+
+                // Automatically fetch data when the page loads
+                document.addEventListener('DOMContentLoaded', fetchOffres);
             </script>
         </div>
 

@@ -269,6 +269,7 @@ class Soumission(Base):
         return (f"<Soumission(id={self.id}, fournisseur_id={self.fournisseur_id}, "
                 f"consultation_fournisseurs_id={self.consultation_fournisseurs_id}, "
                 f"montant_total={self.montant_total}, ordre_classement={self.ordre_classement})>")    
+
 # Classe OffreTechnique
 class OffreTechnique(Base):
     __tablename__ = 'offres_techniques'
