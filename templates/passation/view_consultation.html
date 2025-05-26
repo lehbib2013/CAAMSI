@@ -340,12 +340,13 @@
                                     <td>
                                          ${attribution.attributed ? `
                                             <button class="btn btn-danger btn-undo" 
-                                                data-attribution-id="${attribution.offre_id}">
-                                                Undo
+                                                data-attribution-id="${attribution.attribution_id}">
+                                                Exclure
                                             </button>
                                         ` : `
                                             <button class="btn btn-primary btn-attribuer" 
                                                 data-fournisseur-id="${attribution.fournisseur_id}" 
+                                                data-marche-id="${attribution.marche_id}"
                                                 data-produit-id="${attribution.produit_id}" 
                                                 data-quantite="${attribution.quantite}" 
                                                 data-prix-unitaire="${attribution.prix_unitaire}" 
@@ -434,12 +435,8 @@
                             const quantite = this.getAttribute('data-quantite');
                             const prixUnitaire = this.getAttribute('data-prix-unitaire');
                             const prixTotal = this.getAttribute('data-prix-total');
-
-                            // Get the checkbox value for "Technical Exclusion"
-                            const checkbox = document.querySelector(
-                                `.technical-exclusion[data-fournisseur-id="${fournisseurId}"][data-produit-id="${produitId}"]`
-                            );
-                            const exclure = checkbox.checked; // Get the checkbox state (true/false)
+                            const marcheId = this.getAttribute('data-marche-id');
+                           
 
                             // Send data to the backend to create or update an attribution
                             fetch(`marches/${marcheId}/attributions`, {
@@ -452,8 +449,8 @@
                                     produit_id: produitId,
                                     quantite: quantite,
                                     prix_unitaire: prixUnitaire,
-                                    prix_total: prixTotal,
-                                    exclure: exclure, // Include the checkbox value
+                                    prix_total: prixTotal
+                                   
                                 }),
                             })
                                 .then(response => {

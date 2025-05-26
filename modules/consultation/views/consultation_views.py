@@ -977,10 +977,12 @@ def update_marche_part(marche_id, part_id):
 @consultation_bp.route('/marches/<int:marche_id>/offres_financieres', methods=['GET'])
 def compare_offres_financieres(marche_id):
     session = Session()
+    attributed = False
     try:
         # Fetch the Marche
         marche = session.query(Marche).filter_by(id=marche_id).first()
         if not marche:
+            print("Marche not found.")  # Debugging log
             return jsonify({'success': False, 'error': 'Marche not found'}), 404
 
         # Initialize a list to store attributions
@@ -996,6 +998,7 @@ def compare_offres_financieres(marche_id):
                 .order_by(OffreFinanciere.produit_id, OffreFinanciere.prix_unitaire_mru.asc())
                 .all()
             )
+            print(f"Found {len(offres)} financial offers.")  # Debugging log
             grouped_offres = {}
             for offre in offres:
                 produit_id = offre.produit_id
@@ -1006,6 +1009,9 @@ def compare_offres_financieres(marche_id):
             # Process attributions for each produit_id
             for produit_id, offres_list in grouped_offres.items():
                 for offre in offres_list:
+                    # Initialize existing_attribution to None
+                    existing_attribution = None
+
                     # Check if the offer is excluded
                     if offre.exclure:
                         attributed = True
@@ -1018,6 +1024,7 @@ def compare_offres_financieres(marche_id):
                         ).first()
 
                         if existing_attribution:
+                            print(f"Updating existing attribution ID: {existing_attribution.id}")  # Debugging log
                             # Update the existing attribution
                             existing_attribution.quantite = offre.qte
                             existing_attribution.prix_unitaire = offre.prix_unitaire_mru
@@ -1026,8 +1033,8 @@ def compare_offres_financieres(marche_id):
                             existing_attribution.offre_technique_filename = offre.soumission.soumission_document_filename
                             existing_attribution.offre_financiere = offre.soumission.soumission_document
                             existing_attribution.offre_financiere_filename = offre.soumission.soumission_document_filename
-                            attributed = True
                         else:
+                            print(f"Creating new attribution for offer ID: {offre.id}")  # Debugging log
                             # Create a new attribution
                             new_attribution = AttributionMarche(
                                 marche_id=marche_id,
@@ -1042,7 +1049,8 @@ def compare_offres_financieres(marche_id):
                                 offre_financiere_filename=offre.soumission.soumission_document_filename
                             )
                             session.add(new_attribution)
-                            attributed = False
+                            # Assign new_attribution to existing_attribution for consistency
+                            existing_attribution = new_attribution
 
                     # Append the attribution details to the response
                     attributions.append({
@@ -1055,9 +1063,11 @@ def compare_offres_financieres(marche_id):
                         'offre_technique_filename': offre.soumission.soumission_document_filename,
                         'offre_financiere': offre.soumission.soumission_document,
                         'offre_financiere_filename': offre.soumission.soumission_document_filename,
-                        'exclure': offre.exclure,  # Include the exclure property
-                        'offre_id':offre.id,
-                        'attributed': attributed  # Indicate whether it was updated or newly created
+                        'exclure': offre.exclure,
+                        'offre_id': offre.id,
+                        'attribution_id': existing_attribution.id if existing_attribution else None,
+                        'attributed': True if existing_attribution else False,
+                        'marche_id': marche_id
                     })
 
         elif marche.criteres_qualification == CriteresQualificationEnum.PAR_OFFRE:
@@ -1074,14 +1084,14 @@ def compare_offres_financieres(marche_id):
                 attribution = AttributionMarche(
                     marche_id=marche_id,
                     fournisseur_id=soumission.fournisseur_id,
-                    produit_id=None,  # No specific produit_id for PAR_OFFRE
-                    quantite=None,  # No specific quantity for PAR_OFFRE
-                    prix_unitaire=None,  # No specific unit price for PAR_OFFRE
+                    produit_id=None,
+                    quantite=None,
+                    prix_unitaire=None,
                     prix_total=soumission.montant_total,
-                    offre_technique=soumission.soumission_document,  # Fill with the same value from Soumission
-                    offre_technique_filename=soumission.soumission_document_filename,  # Filename for the technical offer
-                    offre_financiere=soumission.soumission_document,  # Fill with the same value from Soumission
-                    offre_financiere_filename=soumission.soumission_document_filename  # Filename for the financial offer
+                    offre_technique=soumission.soumission_document,
+                    offre_technique_filename=soumission.soumission_document_filename,
+                    offre_financiere=soumission.soumission_document,
+                    offre_financiere_filename=soumission.soumission_document_filename
                 )
                 session.add(attribution)
                 attributions.append({
@@ -1098,6 +1108,7 @@ def compare_offres_financieres(marche_id):
         return jsonify({'success': True, 'data': attributions})
     except Exception as e:
         session.rollback()
+        print(f"Error occurred: {str(e)}")  # Debugging log
         return jsonify({'success': False, 'error': str(e)}), 500
     finally:
         session.close()
@@ -1107,35 +1118,47 @@ def create_or_update_attribution(marche_id):
     session = Session()
     try:
         data = request.get_json()
-        attribution = session.query(AttributionMarche).filter_by(
-            marche_id=marche_id,
-            fournisseur_id=data['fournisseur_id'],
-            produit_id=data['produit_id']
-        ).first()
 
-        if attribution:
-            # Update existing attribution
-            attribution.quantite = data['quantite']
-            attribution.prix_unitaire = data['prix_unitaire']
-            attribution.prix_total = data['prix_total']
-            attribution.exclure = data['exclure']
-        else:
-            # Create new attribution
-            attribution = AttributionMarche(
-                marche_id=marche_id,
-                fournisseur_id=data['fournisseur_id'],
-                produit_id=data['produit_id'],
-                quantite=data['quantite'],
-                prix_unitaire=data['prix_unitaire'],
-                prix_total=data['prix_total'],
-                exclure=data['exclure']
+
+        # Find the corresponding Soumission using marche_id and fournisseur_id
+        soumission = (
+            session.query(Soumission)
+            .filter_by(
+                consultation_fournisseurs_id=marche_id,
+                fournisseur_id=data['fournisseur_id']
             )
-            session.add(attribution)
+            .first()
+        )
 
+        if not soumission:
+            print("Corresponding soumission not found.")  # Debugging log
+            return jsonify({'success': False, 'error': 'Corresponding soumission not found'}), 404
+
+        # Find the corresponding OffreFinanciere using soumission_id and produit_id
+        offre = (
+            session.query(OffreFinanciere)
+            .filter_by(
+                soumission_id=soumission.id,
+                produit_id=data['produit_id']
+            )
+            .first()
+        )
+
+        if not offre:
+            print("Corresponding offer not found.")  # Debugging log
+            return jsonify({'success': False, 'error': 'Corresponding offer not found'}), 404
+
+        # Update the offer's exclure field to False
+        offre.exclure = False
+        print(f"Updated offer ID {offre.id} with exclure = false")  # Debugging log
+
+        # Commit the changes
         session.commit()
-        return jsonify({'success': True, 'message': 'Attribution created or updated successfully!'})
+        return redirect(url_for('consultations.compare_offres_financieres', marche_id = marche_id))
+    #jsonify({'success': True, 'message': 'Attribution created or updated successfully, and offer updated!'})
     except Exception as e:
         session.rollback()
+        print(f"Error occurred: {str(e)}")  # Debugging log
         return jsonify({'success': False, 'error': str(e)}), 500
     finally:
         session.close()
@@ -1161,34 +1184,61 @@ def update_offre_financiere_eval(offre_id):
         session.close()
 
 
-@consultation_bp.route('/marches/attributions/<int:offre_id>/delete', methods=['DELETE'])
-def delete_attribution(offre_id):
+@consultation_bp.route('/marches/attributions/<int:attribution_id>/delete', methods=['DELETE'])
+def delete_attribution(attribution_id):
     session = Session()
     try:
-        print(f"Attempting to delete attribution for offre_id: {offre_id}")  # Debugging log
+        print(f"Attempting to delete attribution with ID: {attribution_id}")  # Debugging log
 
-        # Explicitly define the join using select_from and on clauses
-        attribution = (
-            session.query(AttributionMarche)
-            .select_from(AttributionMarche)
-            .join(OffreFinanciere, 
-                  (AttributionMarche.produit_id == OffreFinanciere.produit_id) &
-                  (AttributionMarche.fournisseur_id == OffreFinanciere.soumission_id))
-            .filter(OffreFinanciere.id == offre_id)
+        # Query the AttributionMarche table directly using the attribution_id
+        attribution = session.query(AttributionMarche).filter_by(id=attribution_id).first()
+
+        if not attribution:
+            print("Attribution not found for the given ID.")  # Debugging log
+            return jsonify({'success': False, 'error': 'Attribution not found for the given ID'}), 404
+
+        print(f"Found attribution with ID: {attribution.id}")  # Debugging log
+
+        # Find the corresponding Soumission using marche_id and fournisseur_id
+        soumission = (
+            session.query(Soumission)
+            .filter_by(
+                consultation_fournisseurs_id=attribution.marche_id,
+                fournisseur_id=attribution.fournisseur_id
+            )
             .first()
         )
 
-        if not attribution:
-            print("Attribution not found for the given offer.")  # Debugging log
-            return jsonify({'success': False, 'error': 'Attribution not found for the given offer'}), 404
+        if not soumission:
+            print("Corresponding soumission not found.")  # Debugging log
+            return jsonify({'success': False, 'error': 'Corresponding soumission not found'}), 404
 
-        print(f"Found attribution with ID: {attribution.id}")  # Debugging log
+        print(f"Found soumission with ID: {soumission.id}")  # Debugging log
+
+        # Find the corresponding OffreFinanciere using soumission_id and produit_id
+        offre = (
+            session.query(OffreFinanciere)
+            .filter_by(
+                soumission_id=soumission.id,
+                produit_id=attribution.produit_id
+            )
+            .first()
+        )
+
+        if not offre:
+            print("Corresponding offer not found.")  # Debugging log
+            return jsonify({'success': False, 'error': 'Corresponding offer not found'}), 404
+
+        # Update the offer's exclure field
+        offre.exclure = True
+        print(f"Updated offer ID {offre.id} with exclure = true")  # Debugging log
 
         # Delete the attribution
         session.delete(attribution)
         session.commit()
-        print("Attribution deleted successfully.")  # Debugging log
-        return jsonify({'success': True, 'message': 'Attribution deleted successfully!'})
+        print("Attribution deleted and offer updated successfully.")  # Debugging log
+        return redirect(url_for('consultations.compare_offres_financieres', marche_id=attribution.marche_id))
+       # return jsonify({'success': True, 'message': 'Attribution deleted and offer updated successfully!'})
     except Exception as e:
         session.rollback()
         print(f"Error occurred: {str(e)}")  # Debugging log
