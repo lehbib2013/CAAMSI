@@ -1237,7 +1237,7 @@ def delete_attribution(attribution_id):
         session.delete(attribution)
         session.commit()
         print("Attribution deleted and offer updated successfully.")  # Debugging log
-        return redirect(url_for('consultations.compare_offres_financieres', marche_id=attribution.marche_id))
+        return jsonify({'success': True, 'message': 'Attribution deleted and offer updated successfully!'})
        # return jsonify({'success': True, 'message': 'Attribution deleted and offer updated successfully!'})
     except Exception as e:
         session.rollback()
