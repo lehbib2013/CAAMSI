@@ -992,23 +992,24 @@ def compare_offres_financieres(marche_id):
         if marche.criteres_qualification == CriteresQualificationEnum.PAR_PRODUIT:
             # Group financial offers by produit_id and sort by ascending prix_unitaire_mru
             offres = (
-                session.query(OffreFinanciere)
+                session.query(OffreFinanciere, Produit.nom.label('produit_nom'))
                 .join(Soumission)
+                .join(Produit, OffreFinanciere.produit_id == Produit.id) 
                 .filter(Soumission.consultation_fournisseurs_id == marche_id)
                 .order_by(OffreFinanciere.produit_id, OffreFinanciere.prix_unitaire_mru.asc())
                 .all()
             )
             print(f"Found {len(offres)} financial offers.")  # Debugging log
             grouped_offres = {}
-            for offre in offres:
+            for offre, produit_nom in offres:
                 produit_id = offre.produit_id
                 if produit_id not in grouped_offres:
                     grouped_offres[produit_id] = []
-                grouped_offres[produit_id].append(offre)
+                grouped_offres[produit_id].append((offre, produit_nom))
 
             # Process attributions for each produit_id
             for produit_id, offres_list in grouped_offres.items():
-                for offre in offres_list:
+                for offre, produit_nom in offres_list:
                     # Initialize existing_attribution to None
                     existing_attribution = None
 
@@ -1056,6 +1057,7 @@ def compare_offres_financieres(marche_id):
                     attributions.append({
                         'produit_id': produit_id,
                         'fournisseur_id': offre.soumission.fournisseur_id,
+                        'produit_nom': produit_nom, 
                         'quantite': offre.qte,
                         'prix_unitaire': offre.prix_unitaire_mru,
                         'prix_total': offre.prix_total,
